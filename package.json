@@ -1,0 +1,33 @@
+{
+  "name": "playwright-typescript-tests",
+  "version": "1.0.0",
+  "description": "Playwright TypeScript test automation project",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:report:ide": "playwright show-report playwright-report-ide",
+    "install:browsers": "playwright install"
+  },
+  "keywords": [
+    "playwright",
+    "typescript",
+    "testing",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "xlsx": "^0.18.5"
+  }
+}

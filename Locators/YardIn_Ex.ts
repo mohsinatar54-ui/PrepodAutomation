@@ -1,0 +1,26 @@
+export const YardEmptyLocators = {
+
+    Master: "//button[normalize-space()= 'Masters']",
+    ClickOnYard: "//button[normalize-space()='Yard Rule Config']",
+    SelectPosition: "//label[normalize-space()='AutoPlan For Yard Position']",
+    APlan: "//input[@id='isAutoPlan']",
+    Search: "//input[@formcontrolname='search']",
+    YConNo: (containerNo: string) => `//td/a[normalize-space()='${containerNo}']`,
+    PlanCon: "//p[text()='Planned Container No']/following-sibling::p",
+    Plan: "//button[normalize-space()='Plan']",
+    PlanID: "//app-custom-dropdown[@formcontrolname='PlannedITVNoID']",
+    YardEx: "//button[normalize-space()='Yard Execution']",
+    Gate: "//div[normalize-space()='Gate']",
+    YardExecution: (containerNo: string) => `//tr[.//a[normalize-space()='${containerNo}']]//button[normalize-space()='Execute']`,
+    Execute: "'//button[normalize-space()='Execute']",
+    CreaneId: "//app-custom-dropdown[@formcontrolname='CraneID']",
+    SelectCr: "//div[@class='option-item']",
+    Yardlogo: "(//img[@alt='Yard Management Logo'])[1]",
+    YPlanner: "//button[normalize-space()='Yard Planner']",
+    Stdservice : "//button[normalize-space()='Standard Service']",
+    EmptyCon : "//a[normalize-space()='Empty Container']",
+    SearchCon : " //input[@placeholder='Search by container no']",
+    YGateIn : "//span[normalize-space()='Gate In']/following-sibling::label",
+    YardValidation : (Vehicle_No:String) => `//tr[td//a[normalize-space()="${Vehicle_No}"]]//button[normalize-space()="Validate"]`,
+
+}

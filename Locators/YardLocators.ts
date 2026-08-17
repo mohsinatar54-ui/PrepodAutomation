@@ -1,0 +1,30 @@
+export const YardPlanner = {
+    Master: "//button[normalize-space()= 'Masters']",
+    YardManagementLogo: '(//img[@alt="Yard Operations Logo"])[1]',
+    YardRuleConfig: '//button[normalize-space()="Yard Rule Config"]',
+    AutoPlanForYardPositionLabel: '//label[normalize-space()="AutoPlan For Yard Position"]',
+    YardRuleConfigurationHeader: '//h2[normalize-space()="Yard Rule Configuration"]',
+    IsAutoPlanCheckbox: '//input[@id="isAutoPlan"]',
+    YardPlannerButton: '//button[normalize-space()="Yard Planner"]',
+    SearchInput: '//input[@formcontrolname="search"]',
+    PlannedContainerNoText: '//p[text()="Planned Container No"]/following-sibling::p',
+    PlanButton: '//button[normalize-space()="Plan"]',
+    PlannedITVDropdown: '//app-custom-dropdown[@formcontrolname="PlannedITVNoID"]',
+    OptionItem: '//div[@class="option-item"]',
+    YardExecutionButton: '//button[normalize-space()="Yard Execution"]',
+    GateSection: '//div[normalize-space()="Gate"]',
+    ExecuteButton: '//button[normalize-space()="Execute"]',
+    CraneDropdown: '//app-custom-dropdown[@formcontrolname="CraneID"]',
+    FirstOptionItem: '(//div[contains(@class,"option-item")])[1]',
+    FirstContainerY:"(//th[normalize-space()='Container No']/ancestor::table//tbody/tr[1]//a)[1]", // new code
+    Shiftbutton:"//button[normalize-space()='Shift']",// new code 
+    Shiftbuttonverify:"//span[text()=' Shift Container From Stack ']",// new code 
+    Shiftingbutton:"//button[text()=' Shiftings ']",
+    Shiftingbuttonverify:"//div[text()='Containers List']",
+    ContainerLink: (containerNo: string) => `//td/a[normalize-space()='${containerNo}']`,
+    FirstContainerLink: (containerNo: string) => `(//td//a[normalize-space()='${containerNo}'])[1]`,
+    ExecuteMoveButtonByContainer: (containerNo: string) => `//tr[.//a[normalize-space()='${containerNo}']]//button[normalize-space()='Execute']`,
+    Shifttostack1:'//label[text()=" Shift to Stack "]/following-sibling::app-custom-dropdown//input',
+    Shifttostack:'//label[text()=" Shift to Stack "]//following-sibling::app-custom-dropdown',
+    Crane:'//label[text()="Crane "]/following-sibling::app-custom-dropdown'
+}
