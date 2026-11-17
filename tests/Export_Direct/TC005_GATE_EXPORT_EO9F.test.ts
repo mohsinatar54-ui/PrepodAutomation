@@ -1,14 +1,211 @@
-import { test, expect } from '@playwright/test';
-import { login, clickAndMeasureDynamic, readTestArtifact, SwitchModule, XOTP, ImportTally, EO9FTally, selectEntityAndSite } from '../../utils/test-helpers';
+import { test, expect, Page } from '@playwright/test';
+import { login, clickAndMeasureDynamic,getNextDateTimeFormatted,getRandomNumberString, readTestArtifact, SwitchModule, XOTP, ImportTally, EO9FTally, selectEntityAndSite, ClickonModule } from '../../utils/test-helpers';
 import { Common, CSMExport, CSMImport } from 'Locators/BookingLocators';
 import { selectFutureDay } from 'utils/createExcelData';
 import { YardPlanner } from 'Locators/YardLocators';
 import { CSMEmpty } from 'Locators/BookingLocators';
 import { GateCommon } from 'Locators/GateLocators';
 import { GateEmpty } from 'Locators/GateLocators';
+import { GateExport } from 'Locators/GateLocators';
+
+
 //import { Common,CSME } from 'Locators/BookingLocators';
 // import { selectFutureDay } from 'utils/createExcelData';
 import fs from 'fs';
+import { Cargo } from 'Locators/CargoLocators';
+// ================================
+  // Read container number from file
+  // ================================
+   const containerNo = await readTestArtifact('ExportDirectEO9F_Container.txt')
+   const EO9FvehicleNo = await readTestArtifact('ExportDirect_EO9F_Vehicle.txt')
+   const DirectBookingNumber = await readTestArtifact('ExportDirectBookingNumber.txt');
+
+   console.log(`Booking No : ${DirectBookingNumber}`)
+  
+   console.log('Using container number:', containerNo);
+   
+export async function gateInCargo(page: Page) {
+
+  await clickAndMeasureDynamic(page, GateCommon.GateWeighbridgeLogo, GateCommon.StandardServicesBtn, 'Route to Gate & Weighbridge Operations');
+
+await clickAndMeasureDynamic(page, GateCommon.StandardServicesBtn, GateExport.CargoButton, 'Route to Cargo');
+
+await clickAndMeasureDynamic(page, GateExport.CargoButton, GateExport.ExportCargoLink, 'Route to Export Cargo');
+
+await clickAndMeasureDynamic(page, GateExport.ExportCargoLink, GateExport.SearchByBookingInput, 'Route to Export Cargo');
+
+await page.locator(GateExport.SearchByBookingInput).fill(DirectBookingNumber);
+
+await page.locator(GateExport.SearchButton).click();
+
+await page.click(GateExport.ValidateButtonE(EO9FvehicleNo));
+
+await clickAndMeasureDynamic(page, GateExport.ExecuteButtonE(EO9FvehicleNo), GateExport.ContainerButton, 'Execute Button');
+}
+export async function cargoShift(page: Page) {
+
+  await clickAndMeasureDynamic(page, YardPlanner.YardExecutionButton, YardPlanner.GateSection, 'Open Yard Execution');
+
+  await clickAndMeasureDynamic(page, YardPlanner.Shiftingbutton, YardPlanner.Shiftingbuttonverify, 'Route to Lift of container');
+
+  await page.locator(YardPlanner.FirstContainerY).click();
+
+  await page.locator(YardPlanner.Shiftbutton).click();
+
+  // await page.waitForTimeout(1000);
+
+  // const shiftToStack = page.locator(YardPlanner.Shifttostack);
+
+  // await shiftToStack.waitFor({ state: 'visible' });
+
+  // await shiftToStack.scrollIntoViewIfNeeded();
+
+  // await shiftToStack.click();
+
+  // const search = page.locator(YardPlanner.Searchshift);
+
+  // await search.waitFor({ state: 'visible' });
+
+  // await search.fill('stuff-destuff');
+
+  // const option = page.locator(YardPlanner.Stuff_destuff);
+
+  // await option.waitFor({ state: 'visible', timeout: 30000 });
+
+  // await option.click();
+
+  await page.locator(YardPlanner.Shiftbutton).click();
+
+  await page.waitForTimeout(20000);
+}
+
+export async function markLeo(page: Page) {
+
+  await clickAndMeasureDynamic(page, Common.BookingTab, CSMExport.ClickonBooking, 'Route to Booking tab');
+
+  await clickAndMeasureDynamic(page, CSMExport.ClickonBooking, CSMExport.AddBooking, 'Route to Export booking screen');
+
+  await page.locator(Cargo.SearchInput).fill(DirectBookingNumber);
+
+  await page.waitForTimeout(10000);
+
+ // await clickAndMeasureDynamic(page, CSMExport.Bookinglink, CSMExport.AddCargo, 'Add Cargo');
+
+  await page.locator(CSMExport.Bookinglink).click();
+
+  await page.locator(CSMExport.UpdateDetails).click();
+
+  await clickAndMeasureDynamic(page, CSMExport.Cargo, CSMExport.AddCargo, 'Add Cargo');
+
+  await page.locator(CSMExport.button).click();
+
+  await page.locator(CSMExport.Arrived).click();
+
+  await page.waitForTimeout(1000);
+
+  await clickAndMeasureDynamic(page, CSMExport.Arrivedbutton, CSMExport.Cargo, 'Route to cargo and mark leo');
+
+  await page.locator(CSMExport.button).click();
+
+  await page.locator(CSMExport.Leo).click();
+
+  await page.waitForTimeout(1000);
+
+  await page.locator(CSMExport.LeoNumberfield).fill('83737345');
+
+  await page.locator(CSMExport.LeoDate).type(`${getNextDateTimeFormatted(1).day}`, { delay: 200 });
+
+  await page.keyboard.type(`${getNextDateTimeFormatted(1).month}`, { delay: 200 });
+
+  await page.keyboard.type(`${getNextDateTimeFormatted(1).year}`, { delay: 200 });
+
+  await clickAndMeasureDynamic(page, CSMExport.Updatebutton, CSMExport.Cargo, 'Route to cargo and mark leo');
+}
+// export async function completeStuffing(page: Page) {
+
+//   // await clickAndMeasureDynamic(page, '//button[text()="Cargo Verification"]', '//button[text()="Export Cargo Verification"]', 'Route to Export cargo verification tab');
+
+//   // await clickAndMeasureDynamic(page, '//button[text()="Export Cargo Verification"]', '//span[text()="Export Cargo Verification"]', 'Click on Export cargo verification tab');
+//   await clickAndMeasureDynamic(page, Cargo.CargoVerificationButton, Cargo.ExportCargoVerificationButton, 'Route to Export cargo verification tab '); //new code 
+  
+//   await clickAndMeasureDynamic(page, Cargo.ExportCargoVerificationButton, Cargo.ExportCargoVerificationSpan, 'Click on Export cargo verification tab '); //new code 
+
+
+//   await page.locator('((//th[text()="#"]/ancestor::table/child::tbody/child::tr)[1]/child::td/div)[1]//span/span').first().click();
+
+//   await page.locator(`//a[normalize-space()="${EO9FvehicleNo}"]`).click();
+
+//   await clickAndMeasureDynamic(page, '//button[normalize-space()="Complete Transport Cargo Unload"]', '//button[normalize-space()="Complete Container Stuffing"]', 'Complete Transport Cargo Unload');
+
+//   await page.locator('//button[normalize-space()="Yes"]').click();
+
+//   await clickAndMeasureDynamic(page, '//button[normalize-space()="Complete Container Stuffing"]', '//button[normalize-space()="Yes"]', 'Complete Container Stuffing');
+
+//   await page.locator('//button[normalize-space()="Yes"]').click();
+//   //  await clickAndMeasureDynamic(page, CSMExport.CompleteDestffing, CSMExport.Containertally, 'Route to complete stuff'); //added code 
+
+// }
+
+export async function completeStuffing(page: Page) {
+
+  // await clickAndMeasureDynamic(page, '//button[text()="Cargo Verification"]', '//button[text()="Export Cargo Verification"]', 'Route to Export cargo verification tab');
+
+  // await clickAndMeasureDynamic(page, '//button[text()="Export Cargo Verification"]', '//span[text()="Export Cargo Verification"]', 'Click on Export cargo verification tab');
+
+  await clickAndMeasureDynamic(page, Cargo.CargoVerificationButton, Cargo.ExportCargoVerificationButton, 'Route to Export cargo verification tab '); //new code 
+  
+  await clickAndMeasureDynamic(page, Cargo.ExportCargoVerificationButton, Cargo.ExportCargoVerificationSpan, 'Click on Export cargo verification tab '); //new code 
+
+
+  await page.locator(Cargo.FirstCargoTableRowSpan).first().click();
+
+  await page.locator(`//a[normalize-space()="${EO9FvehicleNo}"]`).click();
+
+  // await clickAndMeasureDynamic(page, Cargo.CargoCompleteTransportCargoUnloadButton, Cargo.CargoCompleteContainerStuffingButton, 'Complete Transport Cargo Unload');
+
+  // await page.locator(Cargo.CargoStuffingYesButton).click();
+
+  await clickAndMeasureDynamic(page, Cargo.CargoCompleteContainerStuffingButton, Cargo.CargoStuffingYesButton, 'Complete Container Stuffing');
+
+  await page.locator(Cargo.CargoStuffingYesButton).click();
+
+  //  await clickAndMeasureDynamic(page, CSMExport.CompleteDestffing, CSMExport.Containertally, 'Route to complete stuff'); //added code 
+
+}
+export async function gateOutCargoemptytruck(page: Page) {
+
+  await clickAndMeasureDynamic(page, GateCommon.StandardServicesBtn, GateEmpty.EmptyContainerTab, 'Route to Empty Container tab');
+
+  await clickAndMeasureDynamic(page, CSMExport.Cargo, CSMExport.ExportCargo, 'Route to Export Cargo');
+
+  await clickAndMeasureDynamic(page, CSMExport.ExportCargo, Cargo.SearchButton, 'Route to Export Cargo Search');
+
+  // Toggle Gate In/Out
+  const gateToggleLabel = page.locator(GateExport.GateOuttoggle);
+
+  await gateToggleLabel.waitFor({
+  state: 'visible',
+  timeout: 30000
+});
+
+  await gateToggleLabel.click();
+
+  await page.locator(GateExport.GateExportBNsearch).fill(DirectBookingNumber);
+
+  await page.waitForTimeout(1000);
+
+  await page.locator(Cargo.SearchButton).click();
+
+  // Validate Button
+  await page.click(`//tr[td//a[normalize-space()="${EO9FvehicleNo}"]]//button[normalize-space()="Validate"]`);
+
+  await page.waitForTimeout(10000);
+
+  // Execute Button
+  await clickAndMeasureDynamic(page, `//tr[td//a[normalize-space()="${EO9FvehicleNo}"]]//button[normalize-space()="Execute"]`, '//button[normalize-space()="Container"]', 'Execute Button');
+
+  await page.waitForTimeout(10000);
+}
 
 function generateVehicleNumber(): string {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -22,189 +219,32 @@ function generateVehicleNumber(): string {
   return `MH46${randomLetters}${randomDigits}`;
 }
 
-const surveyRemark = 'Condition OK';
-const containerNo = 'CNTU4308779';
-const EO9FvehicleNo ='EO9F559091';
-const bookingNumber='35899BN20260814001EXP';
+// const surveyRemark = 'Condition OK';
+// const containerNo = 'CNTU0795079';
+// //const EO9FvehicleNo ='EO9F254257';
+// const bookingNumber='11110BN20260818001EXP';
 
 // Container number artifact file
 
-test('TC002 GATE EXPORT XITF', async ({ page }) => {
-  test.setTimeout(120000); // 2 minutes
+test('TC005_GATE_EXPORT_EO9F.ts', async ({ page }) => {
+  test.setTimeout(800000); // 2 minutes
+ // await login(page);
+  const loginPage = await login(page);
+  await selectEntityAndSite(loginPage);
+  await gateInCargo(loginPage);
+   SwitchModule(loginPage, 'Yard Operations');
+   await cargoShift(loginPage); 
+  await page.waitForTimeout(1000);
+  SwitchModule(loginPage, 'Cargo Warehouse Management');
+  await page.waitForTimeout(1000);
+  await EO9FTally(loginPage, `${EO9FvehicleNo}`); 
+  SwitchModule(loginPage, 'Customer Service Portal');
+  await markLeo(loginPage);
+  SwitchModule(loginPage, 'Cargo Warehouse Management');
+  await completeStuffing(loginPage);
+  SwitchModule(loginPage, 'Gate Operations');
+  await gateOutCargoemptytruck(loginPage);
 
-  await login(page);
-  await selectEntityAndSite(page);
-  // ================================
-  // Read container number from file
-  // ================================
-//   const containerNo = await readTestArtifact('ExportDirect_EO9F_Container.txt')
-// // const containerNo = 'CNTU4308779';
-// const EO9FvehicleNo ='EO9F559091';
-  const EO9FvehicleNo = await readTestArtifact('ExportDirect_EO9F_Vehicle.txt')
   
-//   console.log('Using container number:', containerNo);
-
-//   await clickAndMeasureDynamic(page, '//img[@alt="Gate Operations Logo"]', '//button[normalize-space()="Standard Services"]', 'Route to Gate & Weighbridge Operations');
-
-//   await clickAndMeasureDynamic(page, '//button[normalize-space()="Standard Services"]', '//button[normalize-space()="Cargo"]', 'Route to Gate tab');
-
-//   await clickAndMeasureDynamic(page, '//button[normalize-space()="Cargo"]', '//a[normalize-space()="Export Cargo"]', 'Route to Cargo tab');
-
-//   await clickAndMeasureDynamic(page, '//a[normalize-space()="Export Cargo"]', '//input[@placeholder="Search by booking no."]', 'Route to Export Cargo');
-
-//   const bookingNumber = await readTestArtifact('ExportDirect_Empty_BookingNumber.txt');
-
-//   console.log(`Booking No : ${bookingNumber}`)
-
-//   await page.locator('//input[@placeholder="Search by booking no."]').fill(bookingNumber);
-//   await page.locator('//button[normalize-space()="Search"]').click();
-
-
-//   // Validate Button
-//   await page.click(`//tr[td//a[normalize-space()="${EO9FvehicleNo}"]]//button[normalize-space()="Validate"]`);
-
-//   //Execute Button
-//   await clickAndMeasureDynamic(page, `//tr[td//a[normalize-space()="${EO9FvehicleNo}"]]//button[normalize-space()="Execute"]`, '//button[normalize-space()="Container"]', 'Execute Button');
-
-// SwitchModule(page, 'Yard Operations');
-  // await clickAndMeasureDynamic(page, YardPlanner.YardManagementLogo, YardPlanner.Master, 'Route to Yard Microservice'); // temp**
-  // await clickAndMeasureDynamic(page, YardPlanner.YardExecutionButton, YardPlanner.GateSection, 'Open Yard Execution');
-  // await clickAndMeasureDynamic(page,YardPlanner.Shiftingbutton ,YardPlanner.Shiftingbuttonverify, 'Route to Lift of container');
-  // await page.locator(YardPlanner.FirstContainerY).click();
-  // await clickAndMeasureDynamic(page,YardPlanner.Shiftbutton ,YardPlanner.Shiftbuttonverify, 'Route to Lift of container');
-  // await page.locator(YardPlanner.Shifttostack).click();
-  // await page.getByText('stuff-destuff', { exact: true }).click();
-  // await page.locator(YardPlanner.Crane).click();
-  // await page.getByText('ECMO', { exact: true }).click();
- // await clickAndMeasureDynamic(page,YardPlanner.Shiftbutton ,YardPlanner.Shiftingbuttonverify, 'Route to Lift of container');
-  // await page.waitForTimeout(10000);
- // await page.pause();
-
-//  SwitchModule(page, 'Cargo Warehouse Management');
-
-await clickAndMeasureDynamic(page, '//img[@alt="Cargo Warehouse Management Logo"]', '//button[normalize-space()="Dashboard"]', 'Route to Cargo warehouse');  // tamp
-
-//  await page.waitForTimeout(10000);
-   await EO9FTally(page, `${EO9FvehicleNo}`);
-// ////
-//   SwitchModule(page, 'Customer Service Portal');
-  
-//   await clickAndMeasureDynamic(page, Common.BookingTab, CSMExport.ClickonBooking, 'Route to Booking tab');
-//   await clickAndMeasureDynamic(page, CSMExport.ClickonBooking, CSMExport.AddBooking, 'Route to Export booking screen');
-//   await page.locator('//input[@placeholder="Search"]').fill(bookingNumber);
-//   await page.locator('//a[@class="hover:opacity-70 cursor-pointer ng-star-inserted"]').click();
-//   await page.locator(CSMExport.UpdateDetails).click();// Temp 
-//   await clickAndMeasureDynamic(page, CSMExport.Cargo, CSMExport.AddCargo, 'Add Cargo');
-//   await page.locator(CSMExport.button).click();
-//   await page.locator(CSMExport.Arrived).click();
-//   await page.waitForTimeout(1000);
-//   await clickAndMeasureDynamic(page, CSMExport.Arrivedbutton, CSMExport.Cargo, 'Route to cargo and mark leo');
-//   await page.locator(CSMExport.button).click();
-//   await page.locator(CSMExport.Leo).click();
-//   await page.waitForTimeout(1000);
-//   await page.locator(CSMExport.LeoDate).click();
-//   await selectFutureDay(page, 0);
-//   await clickAndMeasureDynamic(page, CSMExport.Updatebutton, CSMExport.Cargo, 'Route to cargo and mark leo');
-//   SwitchModule(page, 'Cargo Warehouse Management');
-//   await clickAndMeasureDynamic(page, CSMExport.CompleteDestffing, CSMExport.Containertally, 'Route to complete stuff');
-
-
-//   SwitchModule(page, 'Gate Operations');
-
-//   await clickAndMeasureDynamic(page, GateCommon.StandardServicesBtn, GateEmpty.EmptyContainerTab, 'Route to Empty Container tab');
-//   await clickAndMeasureDynamic(page, CSMExport.Cargo, CSMExport.AddCargo, 'Add Cargo');  
-//   await clickAndMeasureDynamic(page, CSMExport.ExportCargo, CSMExport.AddCargo, 'Add Cargo');  
-//   // Toggle (Gate In/Out)
-//   const gateToggleLabel = page.locator(
-//     '//span[normalize-space()="Gate In"]/following-sibling::label'
-//   );
- 
-//   await gateToggleLabel.click();
-//  // await page.locator(YardPlanner.FirstContainerY).click();
-
-//  await page.locator('//input[@placeholder="Search by booking no."]').fill(bookingNumber);
-//   await page.locator('//button[normalize-space()="Search"]').click();
-
-//   // Validate Button
-//   await page.click(`//tr[td//a[normalize-space()="${EO9FvehicleNo}"]]//button[normalize-space()="Validate"]`);
-
-//   //Execute Button
-//   await clickAndMeasureDynamic(page, `//tr[td//a[normalize-space()="${EO9FvehicleNo}"]]//button[normalize-space()="Execute"]`, '//button[normalize-space()="Container"]', 'Execute Button');
-
-//   SwitchModule(page, 'Customer Service Portal');
-
-//   await clickAndMeasureDynamic(page, Common.BookingTab, CSMEmpty.EmptyBooking, 'Route to Booking tab');
-//   await clickAndMeasureDynamic(page, CSMEmpty.EmptyBooking, CSMEmpty.AddBooking, 'Route to Empty booking screen');
-//   await clickAndMeasureDynamic(page, CSMExport.ClickonBooking, CSMExport.AddBooking, 'Route to Export booking screen');
-//      await page.locator('//input[@placeholder="Container No."]').fill(containerNo);  // Temp 
-//      await page.waitForTimeout(2000);             // Temp      
-//      await page.locator('//a[@class="hover:opacity-70 cursor-pointer ng-star-inserted"]').click();// Temp 
-//      await page.waitForTimeout(2000); // Temp 
-//      await page.locator(CSMExport.UpdateDetails).click();// Temp 
-//   await clickAndMeasureDynamic(page, CSMExport.JobOrder, CSMExport.NewJO, 'Route to Job Orders tab');
-//   await clickAndMeasureDynamic(page, CSMExport.NewJO, CSMExport.JobCatId, 'Add Job Order');
-//    await page.locator(CSMExport.JobCatId).selectOption('Container Job');
-//     await page.locator(CSMExport.JobActId).selectOption('Depot Gate Operation');
-//  //   await page.locator(CSMExport.JobDesc).selectOption({ value: data.JobDescription });
-//   //  await page.locator(CSMExport.JobDesc).selectOption({ label: '/XITF/' });
-//     await page.locator(CSMExport.JobConId).selectOption(containerNo);
-//  //   await page.locator(CSMExport.EstDtTime).click();
-//  //   await selectFutureDay(page, 1);
-//     await clickAndMeasureDynamic(page, CSMExport.Add, CSMExport.JobPlan, 'Add Job Order');
-//     await page.click(CSMExport.Save);
-
-// SwitchModule(page, 'Gate Operations');
-
-//   await clickAndMeasureDynamic(page, GateCommon.StandardServicesBtn, GateEmpty.EmptyContainerTab, 'Route to Empty Container tab');
-//   await clickAndMeasureDynamic(page, GateEmpty.EmptyContainerTab, GateEmpty.SearchByContainerInput, 'Route to Empty Container tab');
-//   await clickAndMeasureDynamic(page, GateEmpty.SearchByContainerInput, GateEmpty.SearchButton, 'Route to Empty Container screen');
-//   await page.locator(GateEmpty.SearchByContainerInput).fill(containerNo);
-//   await page.locator(GateEmpty.SearchButton).click();
-//   await clickAndMeasureDynamic(page, GateEmpty.TBAButton(containerNo), GateEmpty.EditButton, 'Open Import Container details');
-//   await clickAndMeasureDynamic(page, GateEmpty.EditButton, GateEmpty.VehicleNoEditInput, 'Route to Edit page');
-//   await page.locator(GateEmpty.VehicleNoInput).fill('MH13QS23233');
-//   await page.locator(GateEmpty.TransportDropdown).click();
-//   await page.locator(GateEmpty.TransportDropdownFirst).click();
-//    // Fill Custom / Actual Seal
-//   await page.locator("//div[label[contains(., 'Custom / Actual Seal')]]//input").fill('Seal');
-//   await page.locator(GateEmpty.MaxPermissibleWeightInput).fill('1000');
-//   await page.locator(GateEmpty.PlannedInWeighbridge).click();
-//   await page.locator(GateEmpty.PlannedInWeighbridgefirst).click();
-//   await page.locator(GateEmpty.PortNameDropdown).click();
-//  // await page.locator(GateEmpty.PortNameInput).fill(data.PortName);
-//   await page.locator(GateEmpty.PortNameFirstOption).first().click();
-//  await page.locator(GateEmpty.SaveButton).click();
-  
-// SwitchModule(page, 'Yard Operations');
-
-// await clickAndMeasureDynamic(page, YardPlanner.YardExecutionButton, YardPlanner.GateSection, 'Open Yard Execution');
-// await page.locator(YardPlanner.SearchInput).fill(containerNo);
-// await clickAndMeasureDynamic(page, YardPlanner.ExecuteMoveButtonByContainer(containerNo), YardPlanner.ExecuteButton, 'Execute move');
-
-// await expect(page.locator(YardPlanner.ContainerLink(containerNo))).not.toBeVisible();
-// console.log('Yard Operations for container number ' + containerNo + ' completed successfully');
-
-// SwitchModule(page, 'Gate Operations');
-
-// await clickAndMeasureDynamic(page, GateCommon.StandardServicesBtn, GateEmpty.EmptyContainerTab, 'Route to Empty Container tab');
-
-// await clickAndMeasureDynamic(page,'//a[text()=" Export Container "]', '//button[normalize-space()="Search"]', 'Route to Export Container tab');
-
-// const gateToggleLabel1 = page.locator(
-//     '//span[normalize-space()="Gate In"]/following-sibling::label'
-//   );
- 
-//   await gateToggleLabel1.click();
-// await page.locator(GateEmpty.SearchByContainerInput).fill(containerNo);
-// await page.locator(GateEmpty.SearchButton).click();
-
-// // Validate Button
-// await page.locator(`//button[normalize-space()="Validate"]`).click();
-
-  // await page.click(`//button[normalize-space()="Validate"]`);
-
-  //Execute Button
-
- //w await page.locator('//button[normalize-space()="Execute"]`).click();
-
 });
+   

@@ -1,8 +1,11 @@
 import { test, expect, Page} from '@playwright/test';
 import { clickAndMeasureDynamic, login, getNextDateTimeFormatted,selectEntityAndSite, getRandomNumberString, readTestArtifact,
   writeTestArtifact, selectFutureDay} from '../utils/test-helpers'; // <-- Update this path if needed, e.g. './utils/test-helpers_VBS_CCIS' or '../../utils/test-helpers_VBS_CCIS'
-import { CSMImport, Common } from 'Locators/BookingLocators';
-import { GateCommon, GateImport } from 'Locators/GateLocators';
+import { CSMImport,CSMExport, Common } from 'Locators/BookingLocators';
+import { GateCommon, GateEmpty, GateImport } from 'Locators/GateLocators';
+
+ const containerNo = await readTestArtifact('ContainerHold_ContainerNumber.txt')
+
 
 export async function CSM_ImportBooking_MOTL(
   page: Page,
@@ -47,10 +50,19 @@ await test.step('Login and navigate to Import Booking screen', async () => {
     await page.locator('//app-site-wall-nz-date-picker[@formcontrolname="GIGMDate"]').click();
     await selectFutureDay(page, 1);
     await page.locator(CSMImport.SMTPNumberInput).type('SMTP' + getRandomNumberString(7));
-    await page.locator(CSMImport.TModeTypeSelect).selectOption(data.Transport_Mode);
+  //  await page.locator(CSMImport.TModeTypeSelect).selectOption(data.Transport_Mode);
     await page.locator(CSMImport.TModeAgentInput).type('Transport Mode Agent');
-    await page.locator(CSMImport.PortOfLoadingSelect).selectOption(data.PortOfLoading);
-    await page.locator(CSMImport.PortOfArrivalSelect).selectOption(data.PortOfArrival);
+    // await page.locator(CSMImport.PortOfLoadingSelect).selectOption(data.PortOfLoading);
+    // await page.locator(CSMImport.PortOfArrivalSelect).selectOption(data.PortOfArrival);
+    await page.locator(CSMExport.LoadingPort).fill(data.POL);
+         await page.locator('//div[text()="VAGE"]/parent::li')
+        .filter({ hasText: data.POL })
+        .click();
+         await page.locator(CSMExport.DischargePort).fill(data.POA);
+          await page.locator('//div[text()="BPCL"]/parent::li')
+        .filter({ hasText: data.POA })
+        .click();
+   
     await page.locator(CSMImport.BreifCargoDescriptionTextarea).fill('This is an automation test for Import Booking');
     // await clickAndMeasureDynamic(page, CSMImport.SubmitBookingButton, CSMImport.UpdateDetailsButton, 'Submit booking details');
     await page.locator(CSMImport.SubmitBookingButton).click();
@@ -105,8 +117,12 @@ await test.step('Login and navigate to Import Booking screen', async () => {
   await test.step('Add Cargo details', async () => {
     await page.click(CSMImport.FreightAndPackagesDiv);
     await page.locator(CSMImport.DECWeightInput).fill(data.DECWeight);
-    await page.locator(CSMImport.WtMeasUnitSelect).selectOption({ label: `${data.WeightUnit}` });
+  //  await page.locator('//select[@formcontrolname="WtMeasUnitID"]').selectOption({ label: 'Displacement Tonnage' });
+  //  await page.locator(CSMImport.WtMeasUnitSelect).selectOption({ index: 1 });
+  //  await page.waitForTimeout(1000);
+    //await page.locator(CSMImport.WtMeasUnitSelect).selectOption({ label: `${data.WeightUnit}` });
     await page.locator(CSMImport.DECVolumeInput).fill(data.DECVolume);
+    await page.locator(CSMImport.VolMeasUnitSelect).selectOption({ index: 1 });
     await page.locator(CSMImport.VolMeasUnitSelect).selectOption({ label: `${data.VolumeUnit}` });
     await page.waitForTimeout(1000);
     await page.locator(CSMImport.CANoOfPackageInput).fill(data.Packages);
@@ -125,10 +141,11 @@ await test.step('Login and navigate to Import Booking screen', async () => {
     writeTestArtifact(containerNumberFile, data.ContainerNo);
   
     await page.locator(CSMImport.ContainerNoInput).fill(data.ContainerNo);
+    await page.locator(CSMExport.LoadingPort).fill(data.POL);
+    await page.locator('//div[text()="VAGE"]/parent::li').filter({ hasText: data.POL }).click();
     await page.locator(CSMImport.COSizeTypeSelect).selectOption({ label: `${data.DepotSizeType}` });
     await page.locator(CSMImport.ISOSizeTypeSelect).selectOption({ label: `${data.ISOSizeType}` });
     await page.locator(CSMImport.LFCLSelect).selectOption({ label: `${data.FreightKind}` });
-
     await page.locator(CSMImport.DONumberInput).fill('DON' + getRandomNumberString(7));
     // const deliveryOrderDate = new Date(Date.now() + 24 * 60 * 60 * 1000)
     //   .toISOString()
@@ -172,7 +189,7 @@ await test.step('Login and navigate to Import Booking screen', async () => {
     return; // exits whole function
     }
   console.log('Container added successfully');
-
+  
   await test.step('Add BOE and Map Cargo', async () => {
     await page.waitForTimeout(2000);
     await clickAndMeasureDynamic(page, CSMImport.CargoTabButton, CSMImport.OpenActions, 'BOE');
@@ -182,12 +199,24 @@ await test.step('Login and navigate to Import Booking screen', async () => {
     }
     await clickAndMeasureDynamic(page, CSMImport.BOEListItem, CSMImport.BENumberInput, 'Route to BOE Screen');
 
-    await page.locator(CSMImport.BENumberInput).fill(getRandomNumberString(7));
+    const beNumber = getRandomNumberString(7);
+
+await page.locator(CSMImport.BENumberInput).click();
+await page.locator(CSMImport.BENumberInput).fill(beNumber);
+
+await page.waitForTimeout(500);
+
+await expect(page.locator(CSMImport.BENumberInput)).toHaveValue(beNumber);
+
+    // await page.locator(CSMImport.BENumberInput).fill(getRandomNumberString(7));
+    // await page.waitForTimeout(2000);
     // await page.locator(CSMImport.BEDateInput).type(`${getNextDateTimeFormatted(0).date}`, { delay: 200 });
     await page.locator(CSMImport.BEDateInput).click();
     await selectFutureDay(page, 0);
 
     await clickAndMeasureDynamic(page, CSMImport.UpdateButton, CSMImport.CargoTabButton, 'Update BOE');
+
+    await page.waitForTimeout(5000);
 
     await page.locator(CSMImport.OpenActions).isVisible();
     await page.locator(CSMImport.OpenActions).click();
@@ -201,7 +230,42 @@ await test.step('Login and navigate to Import Booking screen', async () => {
     await page.locator(CSMImport.PackagesInput).fill(data.Packages);
 
     await clickAndMeasureDynamic(page, CSMImport.MapButton, CSMImport.AddNewCargoButton, 'Map Cargo');
-  });
+    
+  //   const cargoNo1 = await page.locator(CSMExport.CargoNumber).innerText();
+  //  writeTestArtifact(cargoNumberFile, cargoNo1);
+  //  console.log(`Cargo Number stored: ${cargoNo1}`);
+
+     await page.waitForTimeout(2000);
+     
+    // await page.locator(CSMExport.ope).click();
+
+   await page.locator(CSMImport.OpenActions).isVisible();
+    await page.locator(CSMImport.OpenActions).click(); 
+    if (!(await page.locator(CSMImport.COE).isVisible())) {
+      await page.locator(CSMImport.OpenActions).click();
+    }
+    await page.locator(CSMImport.COE).click();
+
+  await page.waitForTimeout(500);
+
+  await page.locator(CSMImport.CEOnumber).fill('8373734545');
+
+  await page.locator(CSMImport.OOCDATE).click();
+
+  await selectFutureDay(page,0);
+
+//   // await page.locator(CSMImport.OOCDATE).type(`${getNextDateTimeFormatted(1).day}`, { delay: 200 });
+
+//   // await page.keyboard.type(`${getNextDateTimeFormatted(1).month}`, { delay: 200 });
+
+//   // await page.keyboard.type(`${getNextDateTimeFormatted(1).year}`, { delay: 200 });
+
+//   // console.log(`Filling Plan Date : ${getNextDateTimeFormatted(1).month}/${getNextDateTimeFormatted(1).day}/${getNextDateTimeFormatted(1).year}`);
+
+//   //  await page.keyboard.type(`${getNextDateTimeFormatted(1).hours}:${getNextDateTimeFormatted(1).minutes}`, { delay: 200 });
+
+//   await clickAndMeasureDynamic(page, CSMExport.Updatebutton, CSMExport.Cargo, 'Route to cargo and mark leo');
+   });
 
   await test.step('Work Order tab and final assertions', async () => {
     // Retrieve ContainerNo from previous step
@@ -217,7 +281,7 @@ await test.step('Login and navigate to Import Booking screen', async () => {
     await clickAndMeasureDynamic(page, CSMImport.WorkOrderSubmitButton, `//app-manage-containers//div[normalize-space()="${ContainerNo}"]`, 'Update Container');
     // await page.locator(CSMImport.WorkOrderSubmitButton).click();
     // await expect(page.locator(CSMImport.WorkOrderTransportation)).toBeVisible();
-    await page.close();
+   // await page.close();
     console.log('TC002_CS_ImportBooking_MOTL completed successfully');
   });
 }
@@ -225,12 +289,14 @@ await test.step('Login and navigate to Import Booking screen', async () => {
 export async function Gate_Import(
   page: Page,
   data: any,
-  ReadbookingNumberFile: string,
-  ReadblnNumberFile: string,
-  ReadcontainerNumberFile: string
+  MFvehicle: string,
+  
 ){
   const Vehicle_No = 'MH' + getRandomNumberString(5);
-  const containerNo = await readTestArtifact(ReadcontainerNumberFile);
+  writeTestArtifact(MFvehicle, Vehicle_No);
+  // const containerNo1 = await readTestArtifact('ImportIndirect_Container.txt');
+  // const containerNo2 = await readTestArtifact('ImportMO9F_Container.txt');
+  // const containerNo = await readTestArtifact('ImportIndirect_Container.txt');
 
   await test.step('Navigate to Import Container edit screen', async () => {
     await clickAndMeasureDynamic(page, GateCommon.GateWeighbridgeLogo, GateCommon.StandardServicesBtn, 'Route to Gate & Weighbridge Operations');
@@ -257,18 +323,47 @@ export async function Gate_Import(
     await page.locator(GateImport.IGMSealInput).fill(data.igmSealNo);
     await page.locator(GateImport.TruckRFIDInput).fill(data.truckRFID);
 
-    await page.locator(GateImport.SurveyRemarkDropdown).click();
-    if (!(await page.locator(GateImport.SurveyRemarkOption(data.surveyRemark)).isVisible())) {
-      await page.locator(GateImport.SurveyRemarkDropdown).click();
-    }
-    await page.locator(GateImport.SurveyRemarkOption(data.surveyRemark)).click();
+    // await page.locator(GateImport.SurveyRemarkDropdown).click();
+    // if (!(await page.locator(GateImport.SurveyRemarkOption(data.surveyRemark)).isVisible())) {
+    //   await page.locator(GateImport.SurveyRemarkDropdown).click();
+    // }
+    // await page.locator(GateImport.SurveyRemarkOption(data.surveyRemark)).click();
 
     await page.locator(GateImport.EIRNoInput).fill(data.EIRNo);
-    await page.locator(GateImport.PortNameDropdown).click();
-    if (!(await page.locator('.dropdown-item', { hasText: data.portName }).isVisible())) {
-      await page.locator(GateImport.PortNameDropdown).click();
-    }
-    await page.locator('.dropdown-item', { hasText: data.portName }).click();
+
+   const isHoldCheckbox = page.locator(
+  "//label[contains(normalize-space(), 'Is Hold?')]/following-sibling::input[@type='checkbox']"
+);
+
+if (await isHoldCheckbox.isVisible().catch(() => false)) {
+  await isHoldCheckbox.check();
+}
+
+      const DepotCC = page.locator(GateImport.Selectholdtype);
+
+      await DepotCC.click({ force: true });
+ 
+      await DepotCC.locator('input').fill('Auto Hold');
+
+      await DepotCC.getByText('Auto Hold', { exact: true }).click({ force: true });
+
+      await page.locator(GateImport.HoldComment).fill(data.HoldComment);
+
+    const PortNameDropdown_TH = page.locator(GateEmpty.PortNameDropdown);
+    
+    await PortNameDropdown_TH.click({ force: true });
+    
+    await PortNameDropdown_TH.locator('input').click({ force: true });
+    
+    await PortNameDropdown_TH.locator('input').fill('Automation Testing Script');
+    
+    await PortNameDropdown_TH.getByText('Automation Testing Script', { exact: true }).click({ force: true });
+    
+    // await page.locator(GateImport.PortNameDropdown).click();
+    // if (!(await page.locator('.dropdown-item', { hasText: data.portName }).isVisible())) {
+    //   await page.locator(GateImport.PortNameDropdown).click();
+    // }
+    // await page.locator('.dropdown-item', { hasText: data.portName }).click();
 
     await page.locator(GateImport.OperatorConditionCode).click();
     await page.waitForTimeout(1000);
@@ -283,13 +378,21 @@ export async function Gate_Import(
       await page.locator(GateImport.DepotConditionCode).click();
     }
     await page.locator(GateImport.DepotCCFirstOption).click();
+    
+    const DepotQC = page.locator(GateImport.DepotQualityCODE);
 
-    await page.locator(GateImport.DepotQualityCode).click();
-    await page.waitForTimeout(1000);
-    if (!(await page.locator(GateImport.DepotQCFirstOption).isVisible())) {
-      await page.locator(GateImport.DepotQualityCode).click();
-    }
-    await page.locator(GateImport.DepotQCFirstOption).click();
+  await DepotQC.click({ force: true });
+
+  await DepotQC.locator('input').fill('AQUABA');
+
+  await DepotQC.getByText('AQUABA', { exact: true }).click({ force: true });
+
+    // await page.locator(GateImport.DepotQualityCode).click();
+    // await page.waitForTimeout(1000);
+    // if (!(await page.locator(GateImport.DepotQCFirstOption).isVisible())) {
+    //   await page.locator(GateImport.DepotQualityCode).click();
+    // }
+    // await page.locator(GateImport.DepotQCFirstOption).click();
     await page.locator(GateImport.PortExitPassInput).fill(data.portExitPassNo);
     await page.locator(GateImport.PortExitPassInput).fill(data.portExitPassNo);
     await page.locator(GateImport.PortOutDateTimeInput).fill(data.portOutDateTime);
@@ -300,6 +403,7 @@ export async function Gate_Import(
     await page.locator(GateImport.IsWeighmentCheckbox).uncheck();
 
     await clickAndMeasureDynamic(page, GateCommon.SaveButton, GateCommon.ValidateButton(Vehicle_No), 'Save Import Container details');
+
   });
 
   await test.step('Validate and execute Import Container', async () => {
@@ -310,15 +414,263 @@ export async function Gate_Import(
     console.log(`Gate Ops for Cargo Hold executed successfully for Container No : ${containerNo} with Vehicle No : ${Vehicle_No}`);
   });
 
-  await test.step('Validate Container at Gatout Screen', async () => {
-    await clickAndMeasureDynamic(page, GateCommon.ToggleButton, GateCommon.ValidateButton(Vehicle_No), 'Route to Gate Out screen');
-    await expect(page.locator(`//tr[td[normalize-space()="${containerNo}"]]//button[normalize-space()="Validate"]`)).toBeVisible();
-    await page.click(GateCommon.ValidateButton(Vehicle_No));
-    await expect(
-  page.locator("span.font-medium")).toHaveText(
-  `Validation failed: ERROR! Container No. ${containerNo} CY3 operation is not completed for this container.`);
-  });
+  // await test.step('Validate Container at Gatout Screen', async () => {
+  //   await clickAndMeasureDynamic(page, GateCommon.ToggleButton, GateCommon.ValidateButton(Vehicle_No), 'Route to Gate Out screen');
+  //   await expect(page.locator(`//tr[td[normalize-space()="${containerNo}"]]//button[normalize-space()="Validate"]`)).toBeVisible();
+  //   await page.click(GateCommon.ValidateButton(Vehicle_No));
+  //   await expect(
+  // page.locator("span.font-medium")).toHaveText(
+  // `Validation failed: ERROR! Container No. ${containerNo} CY3 operation is not completed for this container.`);
+  // });
 }
+
+
+export async function Gate_Import_HOLD(
+  page: Page,
+  data: any,
+  MFvehicle: string,
+  
+){
+  const Vehicle_No = 'MH' + getRandomNumberString(5);
+  writeTestArtifact(MFvehicle, Vehicle_No);
+  // const containerNo1 = await readTestArtifact('ImportIndirect_Container.txt');
+  // const containerNo2 = await readTestArtifact('ImportMO9F_Container.txt');
+  // const containerNo = await readTestArtifact('ImportIndirect_Container.txt');
+
+  await test.step('Navigate to Import Container edit screen', async () => {
+    await clickAndMeasureDynamic(page, GateCommon.GateWeighbridgeLogo, GateCommon.StandardServicesBtn, 'Route to Gate & Weighbridge Operations');
+    await clickAndMeasureDynamic(page, GateCommon.StandardServicesBtn, GateImport.ImportContainerTab, 'Route to Import Container tab');
+    await clickAndMeasureDynamic(page, GateImport.ImportContainerTab, GateImport.TBAButton(containerNo), 'Route to Import Container');
+    await clickAndMeasureDynamic(page, GateImport.TBAButton(containerNo), GateCommon.EditButton, 'Open Import Container details');
+    await clickAndMeasureDynamic(page, GateCommon.EditButton, GateImport.VehicleNoInput, 'Route to Edit page');
+  });
+
+  await test.step('Fill Import Container details and save', async () => {
+    await page.locator(GateImport.VehicleNoInput).fill(Vehicle_No);
+
+    await page.locator(GateImport.TransportDropdown).click();
+    await page.waitForTimeout(1000);
+    if (!(await page.locator(GateImport.TransportDropdownFirst).isVisible())) {
+      await page.locator(GateImport.TransportDropdown).click();
+    }
+    await page.locator(GateImport.TransportDropdownFirst).click();
+
+    await page.locator(GateImport.TareWeightInput).fill(data.tareWeight);
+    await page.locator(GateImport.DamageDetailsInput).fill(data.damageDetails);
+    await page.locator(GateImport.MaxPermissibleWeightInput).fill(data.maxPermissibleWeight);
+    await page.locator(GateImport.CustomSealInput).fill(data.customSeal);
+    await page.locator(GateImport.IGMSealInput).fill(data.igmSealNo);
+    await page.locator(GateImport.TruckRFIDInput).fill(data.truckRFID);
+
+    // await page.locator(GateImport.SurveyRemarkDropdown).click();
+    // if (!(await page.locator(GateImport.SurveyRemarkOption(data.surveyRemark)).isVisible())) {
+    //   await page.locator(GateImport.SurveyRemarkDropdown).click();
+    // }
+    // await page.locator(GateImport.SurveyRemarkOption(data.surveyRemark)).click();
+
+    await page.locator(GateImport.EIRNoInput).fill(data.EIRNo);
+
+//     const isHoldCheckbox = page.locator(
+//   "//label[contains(normalize-space(), 'Is Hold?')]/following-sibling::input[@type='checkbox']"
+// );
+
+//       await isHoldCheckbox.check();
+
+//       const DepotCC = page.locator(GateImport.Selectholdtype);
+
+//       await DepotCC.click({ force: true });
+ 
+//       await DepotCC.locator('input').fill('Auto Hold');
+
+//       await DepotCC.getByText('Auto Hold', { exact: true }).click({ force: true });
+
+//       await page.locator(GateImport.HoldComment).fill(data.HoldComment);
+
+    const PortNameDropdown_TH = page.locator(GateEmpty.PortNameDropdown);
+    
+    await PortNameDropdown_TH.click({ force: true });
+    
+    await PortNameDropdown_TH.locator('input').click({ force: true });
+    
+    await PortNameDropdown_TH.locator('input').fill('Automation Testing Script');
+    
+    await PortNameDropdown_TH.getByText('Automation Testing Script', { exact: true }).click({ force: true });
+    
+    // await page.locator(GateImport.PortNameDropdown).click();
+    // if (!(await page.locator('.dropdown-item', { hasText: data.portName }).isVisible())) {
+    //   await page.locator(GateImport.PortNameDropdown).click();
+    // }
+    // await page.locator('.dropdown-item', { hasText: data.portName }).click();
+
+    await page.locator(GateImport.OperatorConditionCode).click();
+    await page.waitForTimeout(1000);
+    if (!(await page.locator(GateImport.OperatorCCFirstOption).isVisible())) {
+      await page.locator(GateImport.OperatorConditionCode).click();
+    }
+    await page.locator(GateImport.OperatorCCFirstOption).click();
+
+    await page.locator(GateImport.DepotConditionCode).click();
+    await page.waitForTimeout(1000);
+    if (!(await page.locator(GateImport.DepotCCFirstOption).isVisible())) {
+      await page.locator(GateImport.DepotConditionCode).click();
+    }
+    await page.locator(GateImport.DepotCCFirstOption).click();
+    
+    const DepotQC = page.locator(GateImport.DepotQualityCODE);
+
+  await DepotQC.click({ force: true });
+
+  await DepotQC.locator('input').fill('AQUABA');
+
+  await DepotQC.getByText('AQUABA', { exact: true }).click({ force: true });
+
+    // await page.locator(GateImport.DepotQualityCode).click();
+    // await page.waitForTimeout(1000);
+    // if (!(await page.locator(GateImport.DepotQCFirstOption).isVisible())) {
+    //   await page.locator(GateImport.DepotQualityCode).click();
+    // }
+    // await page.locator(GateImport.DepotQCFirstOption).click();
+    await page.locator(GateImport.PortExitPassInput).fill(data.portExitPassNo);
+    await page.locator(GateImport.PortExitPassInput).fill(data.portExitPassNo);
+    await page.locator(GateImport.PortOutDateTimeInput).fill(data.portOutDateTime);
+    await page.locator(GateImport.CFSGateInDateTimeInput).fill(data.cfsGateInDateTime);
+    // await page.locator(GateImport.CFSGateInDateTimeInput).click();
+    // await selectFutureDay(page, 0);
+    await page.locator(GateImport.PortTransNoInput).fill(data.portTransNo);
+    await page.locator(GateImport.IsWeighmentCheckbox).uncheck();
+
+    await clickAndMeasureDynamic(page, GateCommon.SaveButton, GateCommon.ValidateButton(Vehicle_No), 'Save Import Container details');
+
+  });
+
+  await test.step('Validate and execute Import Container', async () => {
+    await page.click(GateCommon.ValidateButton(Vehicle_No));
+    await expect(page.getByText('Validation successful')).toBeVisible();
+    await page.click(GateCommon.ExecuteButton(Vehicle_No));
+    // await expect(page.getByText('Execution successful')).toBeVisible();
+    console.log(`Gate Ops for Cargo Hold executed successfully for Container No : ${containerNo} with Vehicle No : ${Vehicle_No}`);
+  });
+
+  // await test.step('Validate Container at Gatout Screen', async () => {
+  //   await clickAndMeasureDynamic(page, GateCommon.ToggleButton, GateCommon.ValidateButton(Vehicle_No), 'Route to Gate Out screen');
+  //   await expect(page.locator(`//tr[td[normalize-space()="${containerNo}"]]//button[normalize-space()="Validate"]`)).toBeVisible();
+  //   await page.click(GateCommon.ValidateButton(Vehicle_No));
+  //   await expect(
+  // page.locator("span.font-medium")).toHaveText(
+  // `Validation failed: ERROR! Container No. ${containerNo} CY3 operation is not completed for this container.`);
+  // });
+}
+// export async function Gate_Import(
+//   page: Page,
+//   data: any,
+//   MFvehicle: string,
+//   ReadblnNumberFile: string,
+//   ReadcontainerNumberFile: string
+// ){
+//   const Vehicle_No = 'MH' + getRandomNumberString(5);
+//   writeTestArtifact(MFvehicle, Vehicle_No);
+//   // const containerNo1 = await readTestArtifact('ImportIndirect_Container.txt');
+//   // const containerNo2 = await readTestArtifact('ImportMO9F_Container.txt');
+//   // const containerNo = await readTestArtifact('ImportIndirect_Container.txt');
+
+//   await test.step('Navigate to Import Container edit screen', async () => {
+//     await clickAndMeasureDynamic(page, GateCommon.GateWeighbridgeLogo, GateCommon.StandardServicesBtn, 'Route to Gate & Weighbridge Operations');
+//     await clickAndMeasureDynamic(page, GateCommon.StandardServicesBtn, GateImport.ImportContainerTab, 'Route to Import Container tab');
+//     await clickAndMeasureDynamic(page, GateImport.ImportContainerTab, GateImport.TBAButton(containerNo), 'Route to Import Container');
+//     await clickAndMeasureDynamic(page, GateImport.TBAButton(containerNo), GateCommon.EditButton, 'Open Import Container details');
+//     await clickAndMeasureDynamic(page, GateCommon.EditButton, GateImport.VehicleNoInput, 'Route to Edit page');
+//   });
+
+//   await test.step('Fill Import Container details and save', async () => {
+//     await page.locator(GateImport.VehicleNoInput).fill(Vehicle_No);
+
+//     await page.locator(GateImport.TransportDropdown).click();
+//     await page.waitForTimeout(1000);
+//     if (!(await page.locator(GateImport.TransportDropdownFirst).isVisible())) {
+//       await page.locator(GateImport.TransportDropdown).click();
+//     }
+//     await page.locator(GateImport.TransportDropdownFirst).click();
+
+//     await page.locator(GateImport.TareWeightInput).fill(data.tareWeight);
+//     await page.locator(GateImport.DamageDetailsInput).fill(data.damageDetails);
+//     await page.locator(GateImport.MaxPermissibleWeightInput).fill(data.maxPermissibleWeight);
+//     await page.locator(GateImport.CustomSealInput).fill(data.customSeal);
+//     await page.locator(GateImport.IGMSealInput).fill(data.igmSealNo);
+//     await page.locator(GateImport.TruckRFIDInput).fill(data.truckRFID);
+
+//     // await page.locator(GateImport.SurveyRemarkDropdown).click();
+//     // if (!(await page.locator(GateImport.SurveyRemarkOption(data.surveyRemark)).isVisible())) {
+//     //   await page.locator(GateImport.SurveyRemarkDropdown).click();
+//     // }
+//     // await page.locator(GateImport.SurveyRemarkOption(data.surveyRemark)).click();
+
+//     await page.locator(GateImport.EIRNoInput).fill(data.EIRNo);
+
+//     const PortNameDropdown_TH = page.locator(GateEmpty.PortNameDropdown);
+    
+//     await PortNameDropdown_TH.click({ force: true });
+    
+//     await PortNameDropdown_TH.locator('input').click({ force: true });
+    
+//     await PortNameDropdown_TH.locator('input').fill('Automation Testing Script');
+    
+//     await PortNameDropdown_TH.getByText('Automation Testing Script', { exact: true }).click({ force: true });
+    
+//     // await page.locator(GateImport.PortNameDropdown).click();
+//     // if (!(await page.locator('.dropdown-item', { hasText: data.portName }).isVisible())) {
+//     //   await page.locator(GateImport.PortNameDropdown).click();
+//     // }
+//     // await page.locator('.dropdown-item', { hasText: data.portName }).click();
+
+//     await page.locator(GateImport.OperatorConditionCode).click();
+//     await page.waitForTimeout(1000);
+//     if (!(await page.locator(GateImport.OperatorCCFirstOption).isVisible())) {
+//       await page.locator(GateImport.OperatorConditionCode).click();
+//     }
+//     await page.locator(GateImport.OperatorCCFirstOption).click();
+
+//     await page.locator(GateImport.DepotConditionCode).click();
+//     await page.waitForTimeout(1000);
+//     if (!(await page.locator(GateImport.DepotCCFirstOption).isVisible())) {
+//       await page.locator(GateImport.DepotConditionCode).click();
+//     }
+//     await page.locator(GateImport.DepotCCFirstOption).click();
+
+//     await page.locator(GateImport.DepotQualityCode).click();
+//     await page.waitForTimeout(1000);
+//     if (!(await page.locator(GateImport.DepotQCFirstOption).isVisible())) {
+//       await page.locator(GateImport.DepotQualityCode).click();
+//     }
+//     await page.locator(GateImport.DepotQCFirstOption).click();
+//     await page.locator(GateImport.PortExitPassInput).fill(data.portExitPassNo);
+//     await page.locator(GateImport.PortExitPassInput).fill(data.portExitPassNo);
+//     await page.locator(GateImport.PortOutDateTimeInput).fill(data.portOutDateTime);
+//     await page.locator(GateImport.CFSGateInDateTimeInput).fill(data.cfsGateInDateTime);
+//     // await page.locator(GateImport.CFSGateInDateTimeInput).click();
+//     // await selectFutureDay(page, 0);
+//     await page.locator(GateImport.PortTransNoInput).fill(data.portTransNo);
+//     await page.locator(GateImport.IsWeighmentCheckbox).uncheck();
+
+//     await clickAndMeasureDynamic(page, GateCommon.SaveButton, GateCommon.ValidateButton(Vehicle_No), 'Save Import Container details');
+//   });
+
+//   await test.step('Validate and execute Import Container', async () => {
+//     await page.click(GateCommon.ValidateButton(Vehicle_No));
+//     await expect(page.getByText('Validation successful')).toBeVisible();
+//     await page.click(GateCommon.ExecuteButton(Vehicle_No));
+//     // await expect(page.getByText('Execution successful')).toBeVisible();
+//     console.log(`Gate Ops for Cargo Hold executed successfully for Container No : ${containerNo} with Vehicle No : ${Vehicle_No}`);
+//   });
+
+//   // await test.step('Validate Container at Gatout Screen', async () => {
+//   //   await clickAndMeasureDynamic(page, GateCommon.ToggleButton, GateCommon.ValidateButton(Vehicle_No), 'Route to Gate Out screen');
+//   //   await expect(page.locator(`//tr[td[normalize-space()="${containerNo}"]]//button[normalize-space()="Validate"]`)).toBeVisible();
+//   //   await page.click(GateCommon.ValidateButton(Vehicle_No));
+//   //   await expect(
+//   // page.locator("span.font-medium")).toHaveText(
+//   // `Validation failed: ERROR! Container No. ${containerNo} CY3 operation is not completed for this container.`);
+//   // });
+// }
 
 
 

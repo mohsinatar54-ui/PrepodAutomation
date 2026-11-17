@@ -8,7 +8,16 @@ export const Common = {
     Search: '//input[@formcontrolname="search"]',
     blnNumberSearch: '//input[@formcontrolname="BLNo"]',
 }
-
+export const CommonM = {
+     VesselOperationsLogo : '(//img[@alt="Vessel Operations Logo"])[1]',
+    GateWeighbridgeLogo: '(//img[@alt="Gate Operations Logo"])[1]',
+    YardManagementLogo: '(//img[@alt="Yard Operations Logo"])[1]',
+    MastersTab: '//button[normalize-space()="Masters"]',
+    DashBoard : "//button[normalize-space()='Dashboard']", 
+    SSRTab : "//button[normalize-space()='SSR']",
+    Search: '//input[@formcontrolname="search"]',
+    blnNumberSearch: '//input[@formcontrolname="BLNo"]',
+}
 export const CSMImport = {
     ImportBookingsButton: '//button[normalize-space()="Import bookings"]',
     AddBookingButton: '//button[normalize-space()="+ Add Booking"]',
@@ -82,15 +91,23 @@ export const CSMImport = {
     WorkOrderSubmitButton: 'button[type="submit"]',
     WorkOrderDescriptionSelect: 'select[formcontrolname="JODID"]',
     AllocationUnitSelect: 'select[formcontrolname="AllocationUnitID"]',
-    WorkOrderTransportation: '//div[normalize-space()="Work Order(Transportation)"]'
+    WorkOrderTransportation: '//div[normalize-space()="Work Order(Transportation)"]',
+    Yesbutton:'//button[text()="Yes"]',
+    Aprrovedbutton:'//button[text()="Approve"]',
+    JoborderApproval:'//span[text()="Job Order Approval"]',
+    COE:'//ul/li[normalize-space()="Custom Release Order"]',
+    CEOnumber:'//input[@formcontrolname="OOCNumber"]',
+    OOCDATE:'//app-site-wall-nz-date-picker[@formcontrolname="OOCDate"]//input'
 }
 
 export const CSMEmpty = {
     EmptyBooking : "//button[normalize-space()='Empty bookings']",
+    PreAnnoucement:"//button[normalize-space()='pre-Announcement']",
     AddBooking : "//button[normalize-space()='+ Add Booking']",
     // search : "//input[@placeholder='Search Operator...']",
-    searchOperatorClick : "//app-searchable-dropdown[@placeholder='Search Operator...']",
-    searchOperatorInput : "//app-searchable-dropdown[@formcontrolname='OpreratorID']//input",
+     searchOperatorClick : "//app-searchable-dropdown[@placeholder='Search Operator...']",
+     searchOperatorInput : "//app-searchable-dropdown[@formcontrolname='OpreratorID']//input",
+   // searchOperatorClick : "//app-autocomplete-dropdown[@placeholder='Search Operator...']",
     JobActID : "//select[@formcontrolname='JobActID']",
     JobWID : "//select[@formcontrolname='JWOID']",
     BookingRef : "//input[@formcontrolname='BookingRefrenecNumber']",
@@ -128,7 +145,15 @@ export const CSMEmpty = {
     ResetButton : '//button[normalize-space()="Reset"]',
     CancelButton : '//button[normalize-space()="Cancel"]',
     IsHoldCheckbox : "//input[@id='isHold']",
-    DeliveryOrderNo:"//input[@formcontrolname='CODONumber']"
+    DeliveryOrderNo:"//input[@formcontrolname='CODONumber']",
+    UploadFile:"//button[normalize-space()='Upload File']",
+    Selectfile:"//input[@placeholder='Select File']",
+    UPloadbutton:"//button[normalize-space()='Upload']",
+    OutJobOrder:"//button[text()='Out Job Order']",
+    ContainerNo:"(//input[@placeholder='Search Container...'])[1]",
+    JOvalidityDate:"//input[@formcontrolname='PlanDate']",
+    BookingRef1:"(//input[@formcontrolname='BookingReferenceNo'])[1]",
+    Updatebutton:"//button[text()='Update']"
 }
 
 export const CSMExport = { 
@@ -210,7 +235,17 @@ export const CSMExport = {
    OperatorBkDet : '//app-autocomplete-dropdown[@formcontrolname="OperatorID"]//input',
    CargoTransport : '//button[normalize-space()="Cargo Transport"]',
    Autolist:'//ul[@role="listbox"]//li',
-   ExportContainer:"//a[text()=' Export Container ']" //new Code 
+   ExportContainer:"//a[text()=' Export Container ']", //new Code ,
+   Bookinglink:'//a[@class="hover:opacity-70 cursor-pointer ng-star-inserted"]',
+   LeoNumberfield:'//input[@formcontrolname="LEONumber"]',
+   ContainerNosearchfield:'//input[@placeholder="Container No."]',
+   firstBookingLink:'//a[@class="hover:opacity-70 cursor-pointer ng-star-inserted"]',
+   JobDescription:'//select[@formcontrolname="JODID"]',
+   CargoNumber:'(//th[normalize-space()="Cargo No."]/ancestor::table[1]//tbody/tr[1]/td)[2]',
+   CargoNO:'//select[@formcontrolname="JODCargoID"]',
+   EALupload:'//button[normalize-space()="EAL Export Booking"]',
+   ADD_EaL_upload:'//button[normalize-space()="+ Add EAL Upload"]',
+   New_EAl_bookingScreen:'//div[text()="New EAL Export Booking"]'
    
 }
 
@@ -225,7 +260,7 @@ export const CSMHoldRelease = {
     CargoBookingNumber : "//app-autocomplete-dropdown[@formcontrolname='bookingNumbers']//input",
     ContainerNoInput : "//app-autocomplete-dropdown[@formcontrolname='ContainerNo']//input",
     CargoNoInput : "//app-autocomplete-dropdown[@formcontrolname='cargoNo']//input",
-    AutocompleteOption : "//li[@role='option']",
+    AutocompleteOption : "//ul[@role='listbox']//li",
     MultiSelectSelectedItems : "app-multi-select-dropdown[formcontrolname='CMLMOP']",
     MultiSelectOptionText : "li.option-item span",
     CommentsInput : "//input[@formcontrolname='comments']",
@@ -236,5 +271,16 @@ export const CSMHoldRelease = {
     BookingRowByNumber : (bookingNo: string) => `//td[normalize-space()="${bookingNo}"]`,
     BookingOptionByText : (bookingNo: string) => `//li[@role='option']//div[contains(text(), "${bookingNo}")]`,
     CargoOptionByText : (cargoNo: string) => `//li[@role='option']//div[contains(text(), "${cargoNo}")]`,
+    Releasemenubutton:"//div[contains(@class,'relative overflow-visible')]/button[.//i[contains(@class,'fa-ellipsis-vertical')]]",
+    Releasebutton:"//ul[contains(@class,'divide-y')]//li[normalize-space()='Release']",
+    Releasebutton1:'//button[text()="Release"]',
+    SearchCC:'//input[@placeholder="Search"]',
+    Firstlinkcontainer:'//table//tbody//tr//td//a',
+    Editbutton:'//button[@title="Edit Container"]',
+    Otherdetails:'//div[text()="Other Details"]',
+    Holdcheck:'//input[@type="checkbox" and @formcontrolname="IsHold"]',
+    cargobookingNo:"//app-autocomplete-dropdown[@formcontrolname='bookingNumbers']//input",
+    CargoNo:"//app-autocomplete-dropdown[@formcontrolname='cargoNo']//input"
+    
 }
 

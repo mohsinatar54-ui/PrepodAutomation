@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { clickAndMeasureDynamic, SwitchModule, login, MOTL, readTestArtifact } from '../../utils/test-helpers';
+import { clickAndMeasureDynamic, SwitchModule, login, MOTL, readTestArtifact } from '../../../utils/test-helpers';
 import fs from 'fs';
 
 function generateVehicleNumber(): string {

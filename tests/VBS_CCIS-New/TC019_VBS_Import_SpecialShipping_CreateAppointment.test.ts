@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumberString, writeTestArtifact, readTestArtifact, selectEntityAndSite } from '../../utils/test-helpers';
 import { setBookingTypeCapacity, SelectVehicleType} from '../../utils/test-helpers_VBS_CCIS';
 import { CSM_ImportBooking_MOTL } from '../../Flows/ImportFlow';
-import { Master,Appointments} from 'Locators/VBSMasters';
+import { Master,Appointments} from 'Locators/All locators/VBSMasters';
 
 // test.describe.serial('Cargo Hold Tests', () => {
 let ImportMOTL: any;

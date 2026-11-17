@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumberString, waitForPageLoad, writeTestArtifact, selectEntityAndSite } from '../../utils/test-helpers';
 import fs from 'fs';
-import { ExportBooking_XITF } from 'Flows/ExportFlow';
+import { ExportBooking_XITF, ExportBooking_XITF_With_JobPlan_Savesubmit1 } from 'Flows/ExportFlow';
+import { ExportBooking_XITF_With_JobPlan_Savesubmit } from 'Flows/ExportFlow';
 import { time } from 'console';
 
 // const PrimaryACCountHolder = 'ADITYA LOGISTICS(ADI01)';
@@ -27,10 +28,12 @@ import { time } from 'console';
 
 const ExportBookingData = {
       PrimaryAccountHolder: 'ADITYA LOGISTICS',
-      Operator: 'MMJ LOGISTICS',
+     // Operator: 'MMJ LOGISTICS',
+      Operator: 'MAERSKLINE',
+      CHA: 'MMJ LOGISTICS',
       FOBValue: '500000',
       DepotSizeType: '20 STD (20STD)',
-      ISOSizeType: '22G1',
+      ISOSizeType: '20G1',
       TotalContainers: '5',
       CargoWeight: '1000',
       CargoVolume: '1000',
@@ -52,10 +55,14 @@ const ExportBookingData = {
       Shipping_Bill_Number: getRandomNumberString(7)
 };
 
+
 test('TC001_CSM_EXPORT_XITF', async ({ page }) => {
   await test.setTimeout(60_000); // 2 minutes timeout for this test
-  await login(page);
-  await selectEntityAndSite(page);
-  await ExportBooking_XITF(page, ExportBookingData, 'XITF_BookingNumber.txt', 'XITF_Container.txt');
+  // await login(page);
+    const loginPage = await login(page);
+  await selectEntityAndSite(loginPage);
+  await ExportBooking_XITF(loginPage, ExportBookingData, 'XITF_BookingNumber.txt', 'XITF_Container.txt');
+  await ExportBooking_XITF_With_JobPlan_Savesubmit1(loginPage);
+  
 });
   

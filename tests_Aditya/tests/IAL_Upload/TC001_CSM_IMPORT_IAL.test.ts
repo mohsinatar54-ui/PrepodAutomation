@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumberString, writeTestArtifact } from '../../utils/test-helpers';
-import { createContainerFile, createExcelFile } from '../../utils/createExcelData';
+import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumberString, writeTestArtifact } from '../../../utils/test-helpers';
+//import { createContainerFile, createExcelFile } from '../../../utils/createExcelData';
  
  
 import fs from 'fs';
@@ -56,13 +56,13 @@ test('TC001_CSM_Import_MOTL', async ({ page }) => {
   await page.locator('select[formcontrolname="InputFormatID"]').selectOption(InputFormat);
  
   // await page.locator('select[formcontrolname="InputFormatID"]').selectOption(OutputFormat);
-  createContainerFile(10);
-    page.locator("//button[normalize-space()='Container']").click();
-    await page.waitForTimeout(1000);
-    const folderPath = 'D:\\OneDrive - Envecon\\Desktop\\SCM';
-    const filePath = path.join(folderPath, 'Container.xlsx');
-    await page.locator("input[type='file']").setInputFiles(filePath);
-    await page.locator("//button[normalize-space()='Upload']").click();
+  // createContainerFile(10);
+  //   page.locator("//button[normalize-space()='Container']").click();
+  //   await page.waitForTimeout(1000);
+  //   const folderPath = 'D:\\OneDrive - Envecon\\Desktop\\SCM';
+  //   const filePath = path.join(folderPath, 'Container.xlsx');
+  //   await page.locator("input[type='file']").setInputFiles(filePath);
+  //   await page.locator("//button[normalize-space()='Upload']").click();
  
   await clickAndMeasureDynamic(page, '//button[normalize-space()="Save"]', '//button[normalize-space()="Back"]', 'Submit IAL booking');
 
@@ -95,7 +95,7 @@ if (await backButton.isVisible()) {
 
 }
 
-await page.locator('//input[@formcontrolname="BLNumber"]').fill(billOfLading);
+await page.locator('//input[@formcontrolname="BLNumber"]').fill('');
 
 await page.locator('//button[normalize-space()="Search"]').click();
 

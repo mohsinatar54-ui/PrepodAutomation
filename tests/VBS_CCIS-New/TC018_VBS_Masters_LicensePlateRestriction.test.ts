@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { Appointments, Master } from 'Locators/VBSMasters';
+import { Appointments, Master } from 'Locators/All locators/VBSMasters';
 // import { login, selectEntityAndSite, SelectVehicleType, clickAndMeasureDynamic, readTestArtifact, getNextDateTimeFormatted } from 'utils/test-helpers_VBS_CCIS';
 import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumberString, writeTestArtifact, readTestArtifact, selectEntityAndSite } from '../../utils/test-helpers';
 import { setBookingTypeCapacity, SelectVehicleType} from '../../utils/test-helpers_VBS_CCIS';

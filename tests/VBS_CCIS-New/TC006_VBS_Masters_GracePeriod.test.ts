@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { Master } from 'Locators/VBSMasters';
+import { Master } from 'Locators/All locators/VBSMasters';
 // import { login, selectEntityAndSite, SelectVehicleType, clickAndMeasureDynamic } from 'utils/test-helpers_VBS_CCIS';
 import { getTomorrowDateFormats, SelectVehicleType } from '../../utils/test-helpers_VBS_CCIS';
 import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumberString,selectEntityAndSite } from '../../utils/test-helpers';

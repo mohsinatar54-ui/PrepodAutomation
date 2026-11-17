@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 // import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumberString, Createfile, readTestArtifact } from '../../utils/test-helpers';
 // import { clickAndMeasureDynamic, login, getNextDateTimeFormatted,SelectVehicleType,selectEntityAndSite, getRandomNumberString, Createfile, readTestArtifact, setBookingTypeCapacity } from '../../utils/test-helpers_VBS_CCIS';
-import { Master,Appointments } from 'Locators/VBSMasters';
+import { Master,Appointments } from 'Locators/All locators/VBSMasters';
 import { getTomorrowDateFormats, SelectVehicleType, setBookingTypeCapacity,Createfile } from '../../utils/test-helpers_VBS_CCIS';
 import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumberString,selectEntityAndSite,readTestArtifact } from '../../utils/test-helpers';
 

@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import { log } from 'console';
-import { Master } from 'Locators/VBSMasters';
+import { Master } from 'Locators/All locators/VBSMasters';
 import { test } from "@playwright/test";
 
   //QA Environment

@@ -24,7 +24,7 @@
   "include": [
     "**/*.ts",
     "**/*.js"
-  ],
+, "tests/Export_Direct/TC001_ExportDirect_CSM_EMPTY_IN.test.ts"  ],
   "exclude": [
     "node_modules",
     "dist",

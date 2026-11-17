@@ -1,0 +1,218 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: Import_Indirect\TC003_GATE_IMPORT_INDIRECT2.test.ts >> TC003_GATE_IMPORT_INDIRECT2.test.ts
+- Location: tests\Import_Indirect\TC003_GATE_IMPORT_INDIRECT2.test.ts:705:1
+
+# Error details
+
+```
+Error: page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://preprod.logstarcloud.io/", waiting until "domcontentloaded"
+
+```
+
+# Test source
+
+```ts
+  1   | import { chromium, expect, Page, TestInfo, TestType, FullConfig } from '@playwright/test';
+  2   | import XLSX from 'xlsx';
+  3   | import fs from 'fs';
+  4   | import path from 'path';
+  5   | import { fileURLToPath } from 'url';
+  6   | import { CSMExport } from '../Locators/BookingLocators';
+  7   | import { Common, CSMImport } from 'Locators/BookingLocators';
+  8   | import type {Reporter,Suite,TestCase,TestResult,} from '@playwright/test/reporter';
+  9   | import { Cargo } from 'Locators/CargoLocators';
+  10  | import { bookingNo } from '@tests/VBS_CCIS-New/TC016_VBS_Export_CreateAppointment.test';
+  11  | //import { bookingNumber } from '@tests/Export_Indirect/TC005_GATE_EXPORT_XICT.test';
+  12  | 
+  13  | 
+  14  | 
+  15  | 
+  16  | const __filename = fileURLToPath(import.meta.url);
+  17  | const __dirname = path.dirname(__filename);
+  18  | 
+  19  | // const URL = 'https://prepac.logstarerp.com';
+  20  | // const Username = 'adityasingh';
+  21  | // const Password = 'Test@123';
+  22  | 
+  23  | // const URL = 'https://prepaclx.logstarerp.com/uen/login';
+  24  | const URL = 'https://preprod.logstarcloud.io/';
+  25  | const Username = 'adityasingh';
+  26  | const Password = 'Test@123';
+  27  | 
+  28  | // const URL = 'https://msdemo.logstarerp.com/usren/login';
+  29  | // const Username = 'aditya.singh';
+  30  | // const Password = 'Pass@123';
+  31  | 
+  32  | // const URL = 'https://cmajedu.logstarerp.com/uen/login';
+  33  | // const Username = 'aditya.singh';
+  34  | // const Password = 'Pass@123';
+  35  | 
+  36  |   const Entity = 'Beacon Depot';
+  37  |   const Site = 'West Terminal';
+  38  |   const Account = 'Envecon Software';
+  39  |   // const Entity = 'Mercantile';
+  40  |   // const Site = 'Kemba';
+  41  | 
+  42  | export async function selectEntityAndSite(page: Page) {
+  43  |   // await page.locator('//ng-select[@placeholder="Select Entity"]').selectOption({ label: entity });
+  44  |   // await page.locator('//ng-select[@placeholder="Select Site"]').selectOption({ label: Site });
+  45  |   // Entity selection
+  46  |   await page.locator('//ng-select[@placeholder="Select Account"]').click();
+  47  |   await page.locator(`//div[@role="option"]//div[normalize-space()="${Account}"]`).click();
+  48  |   await page.locator('//ng-select[@placeholder="Select Entity"]').click();
+  49  |   await page.locator(`//div[@role="option"]//span[normalize-space()="${Entity}"]`).click();
+  50  |   await page.locator('//ng-select[@placeholder="Select Site"]').click();
+  51  |   await page.locator(`//div[@role="option"]//span[normalize-space()="${Site}"]`).click();
+  52  | }
+  53  | 
+  54  | 
+  55  | export function getNextDateTimeFormatted(n: number): { date: string, day: string, month: string, year: string, hours: string, minutes: string } {
+  56  |   const now = new Date();
+  57  |   now.setDate(now.getDate() + n);
+  58  | 
+  59  |   const pad = (n: number) => n < 10 ? '0' + n : n.toString();
+  60  | 
+  61  |   const day = pad(now.getDate());
+  62  |   const month = pad(now.getMonth() + 1); // Months are 0-indexed
+  63  |   const year = now.getFullYear().toString();
+  64  |   // .toString().slice(-2);
+  65  |   const hours = pad(now.getHours());
+  66  |   const minutes = pad(now.getMinutes());
+  67  |   const date = `${day}${month}${year}`;
+  68  |   return { date, day, month, year, hours, minutes };
+  69  | }
+  70  | 
+  71  | export function getRandomNumberString(length: number): string {
+  72  |   return Array(length)
+  73  |     .fill(0)
+  74  |     .map(() => Math.floor(Math.random() * 10))
+  75  |     .join('');
+  76  | }
+  77  | 
+  78  | export async function switchToNewTab(
+  79  |   page: Page,
+  80  |   clickLocator: string
+  81  | ): Promise<Page> {
+  82  |   const [newPage] = await Promise.all([
+  83  |     page.context().waitForEvent('page'),
+  84  |     page.locator(clickLocator).click(),
+  85  |   ]);
+  86  | 
+  87  |   await newPage.waitForLoadState('domcontentloaded');
+  88  | 
+  89  |   return newPage;
+  90  | }
+  91  | 
+  92  | export async function login(page: Page): Promise<Page> {
+> 93  |   await page.goto(URL, {
+      |              ^ Error: page.goto: Target page, context or browser has been closed
+  94  |     waitUntil: 'domcontentloaded',
+  95  |   });
+  96  | 
+  97  |   // Click Login and switch to the newly opened tab
+  98  |   const loginPage = await switchToNewTab(
+  99  |     page,
+  100 |     '//a[normalize-space()="Login"]'
+  101 |   );
+  102 | 
+  103 |   // Perform login on the new tab
+  104 |   await loginPage.locator('//input[@name="username"]').fill(Username);
+  105 |   await loginPage.locator('//input[@name="password"]').fill(Password);
+  106 | 
+  107 |   await clickAndMeasureDynamic(
+  108 |     loginPage,
+  109 |     '//button[@type="submit"]',
+  110 |     '//ng-select[@placeholder="Select Entity"]',
+  111 |     'Click Login button'
+  112 |   );
+  113 | 
+  114 |   return loginPage;
+  115 | }
+  116 | 
+  117 | 
+  118 | 
+  119 | 
+  120 | 
+  121 | 
+  122 | 
+  123 | 
+  124 | 
+  125 | 
+  126 | 
+  127 | 
+  128 | 
+  129 | 
+  130 | 
+  131 | 
+  132 | 
+  133 | 
+  134 | 
+  135 | // export async function switchToNewTab(
+  136 | //   page: Page,
+  137 | //   clickLocator: string
+  138 | // ): Promise<Page> {
+  139 | //   const [newPage] = await Promise.all([
+  140 | //     page.context().waitForEvent('page'),
+  141 | //     page.locator(clickLocator).click(),
+  142 | //   ]);
+  143 | 
+  144 | //   await newPage.waitForLoadState('domcontentloaded');
+  145 | 
+  146 | //   return newPage;
+  147 | // }
+  148 | // export async function login(page: Page): Promise<Page> {
+  149 | //   await page.goto(URL, {
+  150 | //     waitUntil: 'domcontentloaded',
+  151 | //   });
+  152 | 
+  153 | //   // Click Login and switch to the newly opened tab
+  154 | //   const loginPage = await switchToNewTab(
+  155 | //     page,
+  156 | //     '//a[normalize-space()="Login"]'
+  157 | //   );
+  158 | 
+  159 | //   // Perform login on the new tab
+  160 | //   await loginPage.locator('//input[@name="username"]').fill(Username);
+  161 | //   await loginPage.locator('//input[@name="password"]').fill(Password);
+  162 | 
+  163 | //   await clickAndMeasureDynamic(
+  164 | //     loginPage,
+  165 | //     '//button[@type="submit"]',
+  166 | //     '//ng-select[@placeholder="Select Entity"]',
+  167 | //     'Click Login button'
+  168 | //   );
+  169 | 
+  170 | //   return loginPage;
+  171 | // }
+  172 | // export async function login(page: Page) {
+  173 | //   await page.goto(URL, {
+  174 | //     waitUntil: 'domcontentloaded'
+  175 | //     // timeout: 600000
+  176 | //   });
+  177 | //   await page.locator('//a[normalize-space()="Login"]').click();
+  178 | //   // Step 2: Login flow + MNR visibility selection
+  179 | //   await page.locator('//input[@name="username"]').fill(Username);
+  180 | //   await page.locator('//input[@name="password"]').fill(Password);
+  181 | //   await clickAndMeasureDynamic(page, '//button[@type="submit"]', '//ng-select[@placeholder="Select Entity"]', 'Click Login button');
+  182 | // }
+  183 | 
+  184 | // export async function login(page: Page): Promise<Page> {
+  185 | //   await page.goto(URL, {
+  186 | //     waitUntil: 'domcontentloaded',
+  187 | //   });
+  188 | 
+  189 | //   // Click Login and capture the new tab
+  190 | //   const [loginPage] = await Promise.all([
+  191 | //     page.context().waitForEvent('page'),
+  192 | //     page.locator('//a[normalize-space()="Login"]').click(),
+  193 | //   ]);
+```

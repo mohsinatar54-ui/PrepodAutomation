@@ -6,6 +6,10 @@ import { fileURLToPath } from 'url';
 import { CSMExport } from '../Locators/BookingLocators';
 import { Common, CSMImport } from 'Locators/BookingLocators';
 import type {Reporter,Suite,TestCase,TestResult,} from '@playwright/test/reporter';
+import { Cargo } from 'Locators/CargoLocators';
+import { bookingNo } from '@tests/VBS_CCIS-New/TC016_VBS_Export_CreateAppointment.test';
+import { Locator } from '@playwright/test';
+//import { bookingNumber } from '@tests/Export_Indirect/TC005_GATE_EXPORT_XICT.test';
 
 
 
@@ -31,9 +35,11 @@ const Password = 'Test@123';
 // const Password = 'Pass@123';
 
   const Entity = 'Beacon Depot';
-  const Site = 'West Terminal';
+  const Site = 'Site 7 (Manila)';
   const Account = 'Envecon Software';
-  // const Entity = 'Mercantile';
+  const AccountM = 'Mercantile';
+  const EntityM = 'Mercantile';
+    const SiteM = 'Kemba';
   // const Site = 'Kemba';
 
 export async function selectEntityAndSite(page: Page) {
@@ -48,6 +54,17 @@ export async function selectEntityAndSite(page: Page) {
   await page.locator(`//div[@role="option"]//span[normalize-space()="${Site}"]`).click();
 }
 
+export async function selectEntityAndSiteM(page: Page) {
+  // await page.locator('//ng-select[@placeholder="Select Entity"]').selectOption({ label: entity });
+  // await page.locator('//ng-select[@placeholder="Select Site"]').selectOption({ label: Site });
+  // Entity selection
+  await page.locator('//ng-select[@placeholder="Select Account"]').click();
+  await page.locator(`//div[@role="option"]//div[normalize-space()="${AccountM}"]`).click();
+  await page.locator('//ng-select[@placeholder="Select Entity"]').click();
+  await page.locator(`//div[@role="option"]//span[normalize-space()="${EntityM}"]`).click();
+  await page.locator('//ng-select[@placeholder="Select Site"]').click();
+  await page.locator(`//div[@role="option"]//span[normalize-space()="${SiteM}"]`).click();
+}
 
 export function getNextDateTimeFormatted(n: number): { date: string, day: string, month: string, year: string, hours: string, minutes: string } {
   const now = new Date();
@@ -72,63 +89,473 @@ export function getRandomNumberString(length: number): string {
     .join('');
 }
 
-export async function login(page: Page) {
-  await page.goto(URL, {
-    waitUntil: 'domcontentloaded'
-    // timeout: 600000
-  });
-  await page.locator('//a[normalize-space()="Login"]').click();
-  // Step 2: Login flow + MNR visibility selection
-  await page.locator('//input[@name="username"]').fill(Username);
-  await page.locator('//input[@name="password"]').fill(Password);
-  await clickAndMeasureDynamic(page, '//button[@type="submit"]', '//ng-select[@placeholder="Select Entity"]', 'Click Login button');
+export async function switchToNewTab(
+  page: Page,
+  clickLocator: string
+): Promise<Page> {
+  const [newPage] = await Promise.all([
+    page.context().waitForEvent('page'),
+    page.locator(clickLocator).click(),
+  ]);
+
+  await newPage.waitForLoadState('domcontentloaded');
+
+  return newPage;
 }
 
-export async function clickAndMeasureDynamic(page: Page, beforeSelector: string, afterSelector: string, description: string) {
-  const clickStart = Date.now();
-  await page.waitForSelector("text=Loading...", { state: 'hidden', timeout: 300000 });
-  // Wait until the loading element with ng-reflect-loading="true" is NOT visible
-  await page.locator('//app-loader[@ng-reflect-loading="true"]').waitFor({ state: 'hidden', timeout: 300000 });
+export async function login(page: Page): Promise<Page> {
+  await page.goto(URL, {
+    waitUntil: 'domcontentloaded',
+  });
 
-  // (Repeated as in original) Wait until the loading element with ng-reflect-loading="true" is NOT visible
-  await page.locator('//div[@class="custom-loader"]').waitFor({ state: 'hidden', timeout: 300000 });
+  // Click Login and switch to the newly opened tab
+  const loginPage = await switchToNewTab(
+    page, '//a[normalize-space()="Login"]');
 
-  await page.locator(beforeSelector).click();
+  // Perform login on the new tab
+  
+  await loginPage.locator('//input[@name="username"]').fill(Username);
+  await loginPage.locator('//input[@name="password"]').fill(Password);
 
-  await page.waitForLoadState('networkidle');
-  // await page.waitForFunction(() => !document.body.innerText.includes('Loading...'), { timeout: 300000 });
-  await page.waitForFunction(
-    () => {
-      const bodyText = document.body?.innerText ?? document.documentElement?.innerText ?? '';
-      return !bodyText.includes('Loading...');
-    },
-    { timeout: 300000 }
+  await clickAndMeasureDynamic(
+    loginPage,
+    '//button[@type="submit"]',
+    '//ng-select[@placeholder="Select Entity"]',
+    'Click Login button'
   );
-  // await page.waitForSelector("text=Loading...", { state: 'hidden', timeout: 300000 });
-  // Wait until the loading element with ng-reflect-loading="true" is NOT visible
-  await page.locator('//app-loader[@ng-reflect-loading="true"]').waitFor({ state: 'hidden', timeout: 300000 });
 
-  // (Repeated as in original) Wait until the loading element with ng-reflect-loading="true" is NOT visible
-  await page.locator('//app-loader[@ng-reflect-loading="true"]').waitFor({ state: 'hidden', timeout: 300000 });
+  return loginPage;
+}
 
-  await page.locator(afterSelector).waitFor({ state: 'visible', timeout: 300000 });
-  const clickEnd = Date.now();
-  const duration = clickEnd - clickStart;
-  console.log(`⏱️ Page load duration after ${description}: ${duration} ms`);
+// export async function loginNew(page: Page) {
+//   await page.goto(URL, {
+//     waitUntil: 'domcontentloaded'
+//     // timeout: 600000
+//   });
+//   const newTabPromise = page.context().waitForEvent('page');
+//   await page.locator('//a[normalize-space()="Login"]').click();
+//   const loginPage = await newTabPromise;
+//   await loginPage.waitForLoadState('domcontentloaded');
+//   // Step 2: Login flow + MNR visibility selection
+//   await loginPage.locator('//input[@name="username"]').fill(Username);
+//   await loginPage.locator('//input[@name="password"]').fill(Password);
+//   await clickAndMeasureDynamic(loginPage, '//button[@type="submit"]', '//ng-select[@placeholder="Select Entity"]', 'Click Login button');
+//   return loginPage;
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// export async function switchToNewTab(
+//   page: Page,
+//   clickLocator: string
+// ): Promise<Page> {
+//   const [newPage] = await Promise.all([
+//     page.context().waitForEvent('page'),
+//     page.locator(clickLocator).click(),
+//   ]);
+
+//   await newPage.waitForLoadState('domcontentloaded');
+
+//   return newPage;
+// }
+// export async function login(page: Page): Promise<Page> {
+//   await page.goto(URL, {
+//     waitUntil: 'domcontentloaded',
+//   });
+
+//   // Click Login and switch to the newly opened tab
+//   const loginPage = await switchToNewTab(
+//     page,
+//     '//a[normalize-space()="Login"]'
+//   );
+
+//   // Perform login on the new tab
+//   await loginPage.locator('//input[@name="username"]').fill(Username);
+//   await loginPage.locator('//input[@name="password"]').fill(Password);
+
+//   await clickAndMeasureDynamic(
+//     loginPage,
+//     '//button[@type="submit"]',
+//     '//ng-select[@placeholder="Select Entity"]',
+//     'Click Login button'
+//   );
+
+//   return loginPage;
+// }
+// export async function login(page: Page) {
+//   await page.goto(URL, {
+//     waitUntil: 'domcontentloaded'
+//     // timeout: 600000
+//   });
+//   await page.locator('//a[normalize-space()="Login"]').click();
+//   // Step 2: Login flow + MNR visibility selection
+//   await page.locator('//input[@name="username"]').fill(Username);
+//   await page.locator('//input[@name="password"]').fill(Password);
+//   await clickAndMeasureDynamic(page, '//button[@type="submit"]', '//ng-select[@placeholder="Select Entity"]', 'Click Login button');
+// }
+
+// export async function login(page: Page): Promise<Page> {
+//   await page.goto(URL, {
+//     waitUntil: 'domcontentloaded',
+//   });
+
+//   // Click Login and capture the new tab
+//   const [loginPage] = await Promise.all([
+//     page.context().waitForEvent('page'),
+//     page.locator('//a[normalize-space()="Login"]').click(),
+//   ]);
+
+//   // Wait for the new login page
+//   await loginPage.waitForLoadState('domcontentloaded');
+
+//   // Fill credentials on the new tab
+//   await loginPage.locator('//input[@name="username"]').fill(Username);
+//   await loginPage.locator('//input[@name="password"]').fill(Password);
+
+//   // Click Sign In
+//   await clickAndMeasureDynamic(
+//     loginPage,
+//     '//button[@type="submit"]',
+//     '//ng-select[@placeholder="Select Entity"]',
+//     'Click Login button'
+//   );
+
+//   // Return the new tab
+//   return loginPage;
+// }
+
+
+// export async function clickAndMeasureDynamic(
+//   page: Page,
+//   beforeSelector: string,
+//   afterSelector: string,
+//   description: string
+// ) {
+//   const clickStart = Date.now();
+
+//   // Wait for existing loading indicators
+//   const loadingText = page.locator('text=Loading...');
+//   if (await loadingText.count() > 0) {
+//     await loadingText.first().waitFor({
+//       state: 'hidden',
+//       timeout: 300000
+//     });
+//   }
+
+//   const appLoader = page.locator(
+//     '//app-loader[@ng-reflect-loading="true"]'
+//   );
+//   if (await appLoader.count() > 0) {
+//     await appLoader.first().waitFor({
+//       state: 'hidden',
+//       timeout: 300000
+//     });
+//   }
+
+//   const customLoader = page.locator('//div[@class="custom-loader"]');
+//   if (await customLoader.count() > 0) {
+//     await customLoader.first().waitFor({
+//       state: 'hidden',
+//       timeout: 300000
+//     });
+//   }
+
+//   // Make sure the button is ready
+//   await page.locator(beforeSelector).waitFor({
+//     state: 'visible',
+//     timeout: 300000
+//   });
+
+//   await page.locator(beforeSelector).click();
+
+//   // Wait for the expected result
+//   await page.locator(afterSelector).waitFor({
+//     state: 'visible',
+//     timeout: 300000
+//   });
+
+//   const duration = Date.now() - clickStart;
+
+//   console.log(
+//     `⏱️ Page load duration after ${description}: ${duration} ms`
+//   );
+
+//   savePerformanceToExcel([
+//     {
+//       TestName: description || `${beforeSelector} to ${afterSelector}`,
+//       Action: 'Click',
+//       Duration: Number(duration),
+//     },
+//   ]);
+
+//   return duration;
+// }
+
+
+
+export async function clickAndMeasureDynamic(
+  page: Page,
+  beforeSelector: string,
+  afterSelector: string,
+  description: string
+) {
+  const clickStart = Date.now();
+
+  const loadingText = page.locator('text=Loading...');
+  const appLoader = page.locator(
+    '//app-loader[@ng-reflect-loading="true"]'
+  );
+  const customLoader = page.locator(
+    '//div[contains(@class,"custom-loader")]'
+  );
+
+  /**
+   * Wait until all known application loaders are gone.
+   */
+  async function waitForLoadersToDisappear() {
+    const loaders: Locator[] = [
+      loadingText,
+      appLoader,
+      customLoader,
+    ];
+
+    for (const loader of loaders) {
+      try {
+        if (await loader.count() > 0) {
+          await loader.first().waitFor({
+            state: 'hidden',
+            timeout: 300000,
+          });
+        }
+      } catch {
+        // Loader may have appeared/disappeared dynamically.
+        // Continue checking the remaining loaders.
+      }
+    }
+  }
+
+  /**
+   * Wait until the target element is visible and stable.
+   *
+   * Playwright's click already performs actionability checks,
+   * but this additional check helps applications where Angular
+   * continues updating the DOM after the element becomes visible.
+   */
+  async function waitForStableElement(
+    locator: Locator,
+    stableTime = 500
+  ) {
+    await locator.waitFor({
+      state: 'visible',
+      timeout: 300000,
+    });
+
+    const start = Date.now();
+    let lastBox: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    } | null = null;
+
+    let stableSince = Date.now();
+
+    while (Date.now() - start < 300000) {
+      const box = await locator.boundingBox();
+
+      if (!box) {
+        stableSince = Date.now();
+        lastBox = null;
+        await page.waitForTimeout(100);
+        continue;
+      }
+
+      const currentBox = {
+        x: Math.round(box.x),
+        y: Math.round(box.y),
+        width: Math.round(box.width),
+        height: Math.round(box.height),
+      };
+
+      if (
+        lastBox &&
+        currentBox.x === lastBox.x &&
+        currentBox.y === lastBox.y &&
+        currentBox.width === lastBox.width &&
+        currentBox.height === lastBox.height
+      ) {
+        if (Date.now() - stableSince >= stableTime) {
+          return;
+        }
+      } else {
+        lastBox = currentBox;
+        stableSince = Date.now();
+      }
+
+      await page.waitForTimeout(100);
+    }
+
+    throw new Error(
+      `Element did not become stable within timeout: ${description}`
+    );
+  }
+
+  // ---------------------------------------------------------
+  // BEFORE CLICK
+  // ---------------------------------------------------------
+
+  // First make sure previous operation has completed.
+  await waitForLoadersToDisappear();
+
+  const beforeLocator = page.locator(beforeSelector);
+
+  // Wait until button/link is visible and DOM position is stable.
+  await waitForStableElement(beforeLocator, 400);
+
+  // Make sure it is enabled.
+  await page.waitForFunction(
+    (selector) => {
+      const element = document.querySelector(selector) as
+        | HTMLButtonElement
+        | HTMLInputElement
+        | HTMLAnchorElement
+        | null;
+
+      if (!element) return false;
+
+      return !(
+        (element as HTMLButtonElement).disabled ||
+        element.getAttribute('aria-disabled') === 'true'
+      );
+    },
+    beforeSelector
+  ).catch(() => {
+    // Some selectors are XPath or custom selectors.
+    // Playwright's click actionability will handle these cases.
+  });
+
+  // ---------------------------------------------------------
+  // CLICK
+  // ---------------------------------------------------------
+
+  await beforeLocator.click();
+
+  // ---------------------------------------------------------
+  // AFTER CLICK
+  // ---------------------------------------------------------
+
+  // Wait for the expected next element.
+  const afterLocator = page.locator(afterSelector);
+
+  await afterLocator.waitFor({
+    state: 'visible',
+    timeout: 300000,
+  });
+
+  // Wait for Angular/DOM rendering to settle.
+  await waitForStableElement(afterLocator, 500);
+
+  // Make sure application loaders are gone AFTER navigation/rendering.
+  await waitForLoadersToDisappear();
+
+  // One final stability check.
+  await waitForStableElement(afterLocator, 300);
+
+  const duration = Date.now() - clickStart;
+
+  console.log(
+    `⏱️ Page load duration after ${description}: ${duration} ms`
+  );
+
   savePerformanceToExcel([
     {
-      TestName: description || beforeSelector + ' to ' + afterSelector,
+      TestName: description || `${beforeSelector} to ${afterSelector}`,
       Action: 'Click',
       Duration: Number(duration),
     },
   ]);
-  // If afterSelector is not found, proceed further (do not throw)
-  try {
-    await page.locator(afterSelector).waitFor({ state: 'visible', timeout: 300000 });
-  } catch (e) {
-    console.warn(`afterSelector not found: ${afterSelector}, proceeding further.`);
+
+  return duration;
+}
+
+
+export async function clickAndMeasureDynamic1(
+  page: Page,
+  beforeSelector: string,
+  afterSelector: string,
+  description: string
+) {
+  const clickStart = Date.now();
+
+  // Wait for existing loading indicators
+  const loadingText = page.locator('text=Loading...');
+  if (await loadingText.count() > 0) {
+    await loadingText.first().waitFor({
+      state: 'hidden',
+      timeout: 300000
+    });
   }
-  // await page.locator('//div[@class="toast-message"]').waitFor({ state: 'hidden', timeout: 60000 });
+
+  const appLoader = page.locator(
+    '//app-loader[@ng-reflect-loading="true"]'
+  );
+  if (await appLoader.count() > 0) {
+    await appLoader.first().waitFor({
+      state: 'hidden',
+      timeout: 300000
+    });
+  }
+
+  const customLoader = page.locator('//div[@class="custom-loader"]');
+  if (await customLoader.count() > 0) {
+    await customLoader.first().waitFor({
+      state: 'hidden',
+      timeout: 300000
+    });
+  }
+
+  // Make sure the button is ready
+  await page.locator(beforeSelector).waitFor({
+    state: 'visible',
+    timeout: 300000
+  });
+
+  await page.locator(beforeSelector).click();
+
+  // Wait for the expected result
+  await page.locator(afterSelector).waitFor({
+    state: 'visible',
+    timeout: 300000
+  });
+
+  const duration = Date.now() - clickStart;
+
+  console.log(
+    `⏱️ Page load duration after ${description}: ${duration} ms`
+  );
+
+  savePerformanceToExcel([
+    {
+      TestName: description || `${beforeSelector} to ${afterSelector}`,
+      Action: 'Click',
+      Duration: Number(duration),
+    },
+  ]);
+
   return duration;
 }
 
@@ -414,6 +841,71 @@ export async function SwitchModule(page: Page, Module_Name: string): Promise<voi
 //  await page.locator('//h3[text()=" Cargo Warehouse Management "]').click();
   
 }
+export async function ClickonModule(page: Page, Module_Name: string): Promise<void> {
+// Click module logo based on provided module name
+  await page.locator(`(//img[@alt="${Module_Name} Logo"])[1]`).click();
+//  await page.locator('//h3[text()=" Cargo Warehouse Management "]').click();
+  
+}
+
+// export async function CreateJobOrder(
+//   page: Page,
+//   data: any
+// ) {
+//   let jobCategory: string;
+//   let jobActivityPoint: string;
+//   let jobDescription: string;
+
+//   if (`${data.JobCategory}` === '8: 98') {
+
+//     jobCategory = data.JobCategory1;
+//     jobActivityPoint = data.JobActivityPoint1;
+//     jobDescription = data.JobDescription1;
+
+//   } else if (`${data.JobCategory}` === '9: 99') {
+
+//     jobCategory = data.JobCategory2;
+//     jobActivityPoint = data.JobActivity2;
+//     jobDescription = data.JobDescription2;
+
+//   } else {
+//     throw new Error(
+//       `Unsupported Job Category: ${data.JobCategory}`
+//     );
+//   }
+
+//   await clickAndMeasureDynamic(
+//     page,
+//     CSMExport.NewJO,
+//     CSMExport.JobCatId,
+//     'Add Job Order'
+//   );
+
+//   await page.locator(CSMExport.JobCatId)
+//     .selectOption(jobCategory);
+
+//   await page.locator(CSMExport.JobActId)
+//     .selectOption(jobActivityPoint);
+
+//   await page.locator(CSMExport.JobDesc)
+//     .selectOption({ value: jobDescription });
+
+//   await page.locator(CSMExport.JobConId)
+//     .selectOption({ index: 0 });
+
+//   await page.locator(CSMExport.EstDtTime).click();
+
+//   await selectFutureDay(page, 1);
+
+//   await clickAndMeasureDynamic(
+//     page,
+//     CSMExport.Add,
+//     CSMExport.JobPlan,
+//     'Add Job Order'
+//   );
+
+//   await page.click(CSMExport.Save);
+// }
 // export async function SwitchModuleCSM(page: Page, Module_Name: string): Promise<void> {
    
 //   await page.locator('//nav[@id="navigation"]').hover();
@@ -940,18 +1432,120 @@ export async function ImportTally(
 }
 
 
+// export async function EO9FTally(
+//   page: Page, EO9FvehicleNo: string
+// ): Promise<void> {
+
+// //  const containerNo = await readTestArtifact('Import_MO9F_Container_Number.txt'); // New change 
+
+// const containerNo = await readTestArtifact('ExportDirect_EO9F_Container.txt');
+//   console.log('Using container number:', containerNo);
+
+// //  await clickAndMeasureDynamic(page, '//img[@alt="Cargo Warehouse Management Logo"]', '//button[normalize-space()="Dashboard"]', 'Route to Cargo warehouse');  // tamp code
+
+//   await clickAndMeasureDynamic(page, '//button[text()="Cargo Verification"]', '//button[text()="Export Cargo Verification"]', 'Route to Export cargo verification tab '); //new code 
+  
+//   await clickAndMeasureDynamic(page, '//button[text()="Export Cargo Verification"]','//span[text()="Export Cargo Verification"]', 'Click on Export cargo verification tab '); //new code 
+
+//  // await clickAndMeasureDynamic(page, '//button[normalize-space()="Tally"]', '//button[normalize-space()="Import Tally"]', 'Route to Tally tab'); // old code 
+
+//  // await clickAndMeasureDynamic(page, '//button[normalize-space()="Export Tally"]', '//input[@formcontrolname="TModNo"]', 'Route to Export Tally tab'); /old Code
+
+  
+// //  await page.locator('//input[@formcontrolname="TModNo"]').fill(EO9FvehicleNo); // old code
+
+//  // await page.locator('//button[normalize-space()="Search"]').click(); //old code
+
+//   await page.locator('//input[@placeholder="Search"]').fill(EO9FvehicleNo);
+
+//   // await page.locator('//a[@class="booking-link"]').first().click(); // OLD CODE
+
+//   await page.locator('((//th[text()="#"]/ancestor::table/child::tbody/child::tr)[1]/child::td/div)[1]//span/span').first().click(); // New CODE
+
+//   await page.locator(`//a[normalize-space()="${EO9FvehicleNo}"]`).click();
+
+//   await page.locator('//button[normalize-space()="+ Add Tally"]').click();
+
+//    await page.locator('//select[@formcontrolname="ContainerNo"]').selectOption({ label: containerNo }); // Tally Type : Full
+
+//   await page.locator('input[formcontrolname="PlanDate"]').type(`${getNextDateTimeFormatted(1).day}`, { delay: 200 });
+//   // // // await page.keyboard.press('ArrowRight');
+
+//     await page.keyboard.type(`${getNextDateTimeFormatted(1).month}`, { delay: 200 });
+//   // // // await page.keyboard.press('ArrowRight');  
+//     await page.keyboard.type(`${getNextDateTimeFormatted(1).year}`, { delay: 200 });
+//     await page.keyboard.press('ArrowRight'); //need when full code run
+//     console.log(`Filling Plan Date : ${getNextDateTimeFormatted(1).month}/${getNextDateTimeFormatted(1).day}/${getNextDateTimeFormatted(1).year}`);
+
+//     await page.keyboard.type(`${getNextDateTimeFormatted(1).hours}:${getNextDateTimeFormatted(1).minutes}`, { delay: 200 });
+//   // // await page.keyboard.press('ArrowDown');
+
+//     await clickAndMeasureDynamic(page, '//button[text()="Save"]', `//tr//td[normalize-space()="${containerNo}"]//preceding-sibling::td//a`, 'Update Tally');
+
+//   await page.locator(`//tr//td[normalize-space()="${containerNo}"]//preceding-sibling::td//a`).click();
+
+// //  await page.locator(`//a[@class="hover:opacity-70"]`).click(); // temp code need to remove for runn full code 
+// // await page.locator("//a[text()='18082026121310694']").click(); //temp code need to remove for full run code 
+// // await page.waitForTimeout(10000);
+//   await page.locator('//button[normalize-space()="+ Add Cargo"]').click();
+
+//  //const declaredPackages ='100';
+// //  const declaredPackages = await page
+//  //await page .locator('//label[normalize-space()="Declared No. of Packages"]/following-sibling::input')
+//  //   .inputValue();//old
+
+//  // await page.locator('//label[normalize-space()="Tally Packages(+ separated)"]//following-sibling::input').fill(declaredPackages);//old
+
+//   //await page.locator('//label[normalize-space()="No. of Good Packages*"]//following-sibling::input').fill(declaredPackages);//old
+// const declaredPackage1 = '100';
+
+// await page.waitForTimeout(10000);
+
+// await page
+//  .locator('//label[normalize-space()="Tally Packages(+ separated)"]//following-sibling::input')
+//  .fill(declaredPackage1);
+// await page.waitForTimeout(10000);
+// await page
+//   .locator('//label[normalize-space()="No. of Good Packages*"]//following-sibling::input')
+//   .fill(declaredPackage1);
+
+//  await page.locator('//label[normalize-space()="No. of Damaged Packages*"]//following-sibling::input').fill('0');
+
+//  await clickAndMeasureDynamic(page, '//button[normalize-space()="Update"]', '//button[normalize-space()="Submit"]', 'Update Tally');
+
+//  await page.locator('//button[normalize-space()="Submit"]').click();
+
+//  await page.locator('//button[normalize-space()="Yes, Submit"]').click();
+
+//  // await clickAndMeasureDynamic(page, '//button[normalize-space()="Back"]', '//button[normalize-space()="Complete Transport Cargo Load"]', 'Back to Complete Transport Cargo Load');
+
+//   await clickAndMeasureDynamic(page, '//button[normalize-space()="Complete Transport Cargo Unload"]', '//button[normalize-space()="Complete Container Stuffing"]', 'Complete Transport Cargo Unload');
+//   await page.locator('//button[normalize-space()="Yes"]').click();
+  
+//   // await clickAndMeasureDynamic(page, '//button[normalize-space()="Complete Container Stuffing"]', '//button[normalize-space()="Yes"]', 'Complete Container Stuffing');
+
+//   // await page.locator('//button[normalize-space()="Yes"]').click();
+
+//   console.log('Tally completed successfully');
+
+  
+// }
+
 export async function EO9FTally(
-  page: Page, EO9FvehicleNo: string
+  page: Page,
+  EO9FvehicleNo: string
 ): Promise<void> {
 
 //  const containerNo = await readTestArtifact('Import_MO9F_Container_Number.txt'); // New change 
 
-const containerNo = await readTestArtifact('ExportDirect_EO9F_Container.txt');
+  const containerNo = await readTestArtifact('ExportDirectEO9F_Container.txt');
   console.log('Using container number:', containerNo);
 
-  await clickAndMeasureDynamic(page, '//button[text()="Cargo Verification"]', '//button[text()="Export Cargo Verification"]', 'Route to Export cargo verification tab '); //new code 
+//  await clickAndMeasureDynamic(page, '//img[@alt="Cargo Warehouse Management Logo"]', '//button[normalize-space()="Dashboard"]', 'Route to Cargo warehouse');  // tamp code
+
+  await clickAndMeasureDynamic(page, Cargo.CargoVerificationButton, Cargo.ExportCargoVerificationButton, 'Route to Export cargo verification tab '); //new code 
   
-  await clickAndMeasureDynamic(page, '//button[text()="Export Cargo Verification"]','//span[text()="Export Cargo Verification"]', 'Click on Export cargo verification tab '); //new code 
+  await clickAndMeasureDynamic(page, Cargo.ExportCargoVerificationButton, Cargo.ExportCargoVerificationSpan, 'Click on Export cargo verification tab '); //new code 
 
  // await clickAndMeasureDynamic(page, '//button[normalize-space()="Tally"]', '//button[normalize-space()="Import Tally"]', 'Route to Tally tab'); // old code 
 
@@ -960,71 +1554,214 @@ const containerNo = await readTestArtifact('ExportDirect_EO9F_Container.txt');
   
 //  await page.locator('//input[@formcontrolname="TModNo"]').fill(EO9FvehicleNo); // old code
 
-//  await page.locator('//button[normalize-space()="Search"]').click();
+ // await page.locator('//button[normalize-space()="Search"]').click(); //old code
 
-  await page.locator('//input[@placeholder="Search"]').fill(EO9FvehicleNo);
+  await page.locator(Cargo.SearchInput).fill(EO9FvehicleNo);
 
   // await page.locator('//a[@class="booking-link"]').first().click(); // OLD CODE
 
-  await page.locator('((//th[text()="#"]/ancestor::table/child::tbody/child::tr)[1]/child::td/div)[1]//span/span').first().click(); // New CODE
+  await page.locator(Cargo.FirstCargoTableRowSpan).first().click(); // New CODE
 
-  await page.locator(`//a[normalize-space()="${EO9FvehicleNo}"]`).click();
+  await page.locator(Cargo.VehicleLink(EO9FvehicleNo)).click();
 
-  await page.locator('//button[normalize-space()="+ Add Tally"]').click();
+  await page.locator(Cargo.AddTallyButton).click();
 
-  await page.locator('//select[@formcontrolname="ContainerNo"]').selectOption({ label: containerNo }); // Tally Type : Full
+  await page.locator(Cargo.ContainerNoDropdown).selectOption({ label: containerNo }); // Tally Type : Full
 
-  await page.locator('input[formcontrolname="PlanDate"]').type(`${getNextDateTimeFormatted(1).day}`, { delay: 200 });
-  // await page.keyboard.press('ArrowRight');
+  await page.locator(Cargo.PlanDateInput).type(`${getNextDateTimeFormatted(1).day}`, { delay: 200 });
+
+  // // // await page.keyboard.press('ArrowRight');
 
   await page.keyboard.type(`${getNextDateTimeFormatted(1).month}`, { delay: 200 });
-  // await page.keyboard.press('ArrowRight');  
+
+  // // // await page.keyboard.press('ArrowRight');  
+
   await page.keyboard.type(`${getNextDateTimeFormatted(1).year}`, { delay: 200 });
-  await page.keyboard.press('ArrowRight');
+
+  await page.keyboard.press('ArrowRight'); //need when full code run
+
   console.log(`Filling Plan Date : ${getNextDateTimeFormatted(1).month}/${getNextDateTimeFormatted(1).day}/${getNextDateTimeFormatted(1).year}`);
 
   await page.keyboard.type(`${getNextDateTimeFormatted(1).hours}:${getNextDateTimeFormatted(1).minutes}`, { delay: 200 });
-  await page.keyboard.press('ArrowDown');
 
-  await clickAndMeasureDynamic(page, '//button[normalize-space()="Update"]', `//tr//td[normalize-space()="${containerNo}"]//preceding-sibling::td//a`, 'Update Tally');
+  // // await page.keyboard.press('ArrowDown');
 
-  await page.locator(`//tr//td[normalize-space()="${containerNo}"]//preceding-sibling::td//a`).click();
+  await clickAndMeasureDynamic(page, Cargo.SaveButton, Cargo.ContainerRowLink(containerNo), 'Update Tally');
 
-  await page.locator('//button[normalize-space()="+ Add Cargo"]').click();
+  await page.locator(Cargo.ContainerRowLink(containerNo)).click();
 
+//  await page.locator(`//a[@class="hover:opacity-70"]`).click(); // temp code need to remove for runn full code 
+// await page.locator("//a[text()='18082026121310694']").click(); //temp code need to remove for full run code 
+// await page.waitForTimeout(10000);
 
-  const declaredPackages = await page
-    .locator('//label[normalize-space()="Declared No. of Packages"]/following-sibling::input')
-    .inputValue();
+  await page.locator(Cargo.AddCargoButton).click();
 
-  await page.locator('//label[normalize-space()="Tally Packages(+ separated)"]//following-sibling::input').fill(declaredPackages);
+ //const declaredPackages ='100';
+//  const declaredPackages = await page
+ //await page .locator('//label[normalize-space()="Declared No. of Packages"]/following-sibling::input')
+ //   .inputValue();//old
 
-  await page.locator('//label[normalize-space()="No. of Good Packages*"]//following-sibling::input').fill(declaredPackages);
+ // await page.locator('//label[normalize-space()="Tally Packages(+ separated)"]//following-sibling::input').fill(declaredPackages);//old
 
-  await page.locator('//label[normalize-space()="No. of Damaged Packages*"]//following-sibling::input').fill('0');
+  //await page.locator('//label[normalize-space()="No. of Good Packages*"]//following-sibling::input').fill(declaredPackages);//old
 
-  await clickAndMeasureDynamic(page, '//button[normalize-space()="Update"]', '//button[normalize-space()="Submit"]', 'Update Tally');
+  const declaredPackage1 = '100';
 
-  await page.locator('//button[normalize-space()="Submit"]').click();
+  await page.waitForTimeout(10000);
 
-  await page.locator('//button[normalize-space()="Yes, Submit"]').click();
+  await page.locator(Cargo.TallyPackagesInput).fill(declaredPackage1);
 
-  await clickAndMeasureDynamic(page, '//button[normalize-space()="Back"]', '//button[normalize-space()="Complete Transport Cargo Load"]', 'Back to Complete Transport Cargo Load');
+  await page.waitForTimeout(10000);
 
-  await clickAndMeasureDynamic(page, '//button[normalize-space()="Complete Transport Cargo Unload"]', '//button[normalize-space()="Complete Container Stuffing"]', 'Complete Transport Cargo Unload');
+  await page.locator(Cargo.NoOfGoodPackagesInput).fill(declaredPackage1);
 
-  await clickAndMeasureDynamic(page, '//button[normalize-space()="Complete Container Stuffing"]', '//button[normalize-space()="Yes"]', 'Complete Container Stuffing');
+  await page.locator(Cargo.NoOfDamagedPackagesInput).fill('0');
 
-  await page.locator('//button[normalize-space()="Yes"]').click();
+  await clickAndMeasureDynamic(page, Cargo.UpdateButton, Cargo.SubmitButton, 'Update Tally');
+
+  await clickAndMeasureDynamic(page, Cargo.SubmitButton, Cargo.YesSubmitButton, 'Submit the cargo1');
+
+  await clickAndMeasureDynamic(page, Cargo.YesSubmitButton, Cargo.CompleteTransportCargoUnloadButton, 'Submit the cargo2');
+
+  // await page.locator(Cargo.SubmitButton).click();
+
+  // await page.locator(Cargo.YesSubmitButton).click();
+
+  // await clickAndMeasureDynamic(page, '//button[normalize-space()="Back"]', '//button[normalize-space()="Complete Transport Cargo Load"]', 'Back to Complete Transport Cargo Load');
+
+  await clickAndMeasureDynamic(page, Cargo.CompleteTransportCargoUnloadButton, Cargo.CompleteContainerStuffingButton, 'Complete Transport Cargo Unload');
+
+  await page.locator(Cargo.YesButton).click();
+  
+  // await clickAndMeasureDynamic(page, '//button[normalize-space()="Complete Container Stuffing"]', '//button[normalize-space()="Yes"]', 'Complete Container Stuffing');
+
+  // await page.locator('//button[normalize-space()="Yes"]').click();
 
   console.log('Tally completed successfully');
 
   
 }
 
+export async function IndirectCargoTally(
+  page: Page,
+  EO9FvehicleNo: string
+): Promise<void> {
 
+//  const containerNo = await readTestArtifact('Import_MO9F_Container_Number.txt'); // New change 
 
+  const containerNo =  readTestArtifact('ExportINDirect_EO91_Container.txt');
+  console.log('Using container number:', containerNo);
 
+//  await clickAndMeasureDynamic(page, '//img[@alt="Cargo Warehouse Management Logo"]', '//button[normalize-space()="Dashboard"]', 'Route to Cargo warehouse');  // tamp code
+
+  await clickAndMeasureDynamic(page, Cargo.CargoStorage, Cargo.Export_Cargo_Carting_Execution, 'Route to Export cargo cart tab '); //new code 
+  
+  await clickAndMeasureDynamic(page, Cargo.Export_Cargo_Carting_Execution, Cargo.Export_Cargo_Carting, 'Click on Export cargo cart Execution tab '); //new code 
+
+ // await clickAndMeasureDynamic(page, '//button[normalize-space()="Tally"]', '//button[normalize-space()="Import Tally"]', 'Route to Tally tab'); // old code 
+
+ // await clickAndMeasureDynamic(page, '//button[normalize-space()="Export Tally"]', '//input[@formcontrolname="TModNo"]', 'Route to Export Tally tab'); /old Code
+
+  
+//  await page.locator('//input[@formcontrolname="TModNo"]').fill(EO9FvehicleNo); // old code
+
+ // await page.locator('//button[normalize-space()="Search"]').click(); //old code
+
+  await page.locator(Cargo.SearchInput).fill(EO9FvehicleNo);
+
+  // await page.locator('//a[@class="booking-link"]').first().click(); // OLD CODE
+
+  await page.locator(Cargo.FirstCargoTableRowSpan).first().click(); // New CODE
+
+  await page.locator(Cargo.VehicleLink(EO9FvehicleNo)).click();
+
+ await page.locator(Cargo.AddTallyButton).click(); //recent
+
+  //await page.locator(Cargo.ContainerNoDropdown).selectOption({ label: containerNo }); // Tally Type : Full
+
+  await page.locator(Cargo.PlanDateInput).type(`${getNextDateTimeFormatted(1).day}`, { delay: 200 });
+
+  // // // await page.keyboard.press('ArrowRight');
+
+ await page.keyboard.type(`${getNextDateTimeFormatted(1).month}`, { delay: 200 });
+
+  // // // await page.keyboard.press('ArrowRight');  
+
+  await page.keyboard.type(`${getNextDateTimeFormatted(1).year}`, { delay: 200 });
+
+  await page.keyboard.press('ArrowRight'); //need when full code run
+
+  console.log(`Filling Plan Date : ${getNextDateTimeFormatted(1).month}/${getNextDateTimeFormatted(1).day}/${getNextDateTimeFormatted(1).year}`);
+
+  await page.keyboard.type(`${getNextDateTimeFormatted(1).hours}:${getNextDateTimeFormatted(1).minutes}`, { delay: 200 });
+
+  // // await page.keyboard.press('ArrowDown');
+
+  await clickAndMeasureDynamic(page, Cargo.SaveButton, Cargo.YesSubmitButton, 'Update Tally');
+
+  await page.locator(Cargo.YesSubmitButton).click();
+
+  await page.locator(Cargo.FirstTallyNumber).click();
+
+//  await page.locator(`//a[@class="hover:opacity-70"]`).click(); // temp code need to remove for runn full code 
+// await page.locator("//a[text()='18082026121310694']").click(); //temp code need to remove for full run code 
+// await page.waitForTimeout(10000);
+
+  await page.locator(Cargo.AddCargoButton).click();
+
+ //const declaredPackages ='100';
+//  const declaredPackages = await page
+ //await page .locator('//label[normalize-space()="Declared No. of Packages"]/following-sibling::input')
+ //   .inputValue();//old
+
+ // await page.locator('//label[normalize-space()="Tally Packages(+ separated)"]//following-sibling::input').fill(declaredPackages);//old
+
+  //await page.locator('//label[normalize-space()="No. of Good Packages*"]//following-sibling::input').fill(declaredPackages);//old
+
+  const declaredPackage1 = '100';
+
+  await page.waitForTimeout(10000);
+
+  await page.locator(Cargo.TallyPackagesInput1).fill(declaredPackage1);
+
+  await page.waitForTimeout(10000);
+
+  await page.locator(Cargo.NoOfGoodPackagesInput).fill(declaredPackage1);
+
+  await page.locator(Cargo.NoOfDamagedPackagesInput).fill('0');
+
+  await clickAndMeasureDynamic(page, Cargo.SaveButton, Cargo.YesSubmitButton, 'Update Tally');
+
+ // await page.locator(Cargo.SubmitButton).click(); ////***old code */
+
+  await page.locator(Cargo.YesSubmitButton).click();
+
+  await page.locator(Cargo.SubmitButton).click();
+
+  await page.locator(Cargo.YesSubmitButton).click();
+
+ await clickAndMeasureDynamic(page, Cargo.CompleteCarting, Cargo.YescompleteButton, 'Complete carting');
+
+ await page.locator(Cargo.YescompleteButton).click();
+
+ await page.locator(Cargo.Arrived).click();
+ await page.waitForTimeout(5000)
+ await page.locator(Cargo.Arrived).click();
+ await page.waitForTimeout(10000)
+  // await clickAndMeasureDynamic(page, '//button[normalize-space()="Back"]', '//button[normalize-space()="Complete Transport Cargo Load"]', 'Back to Complete Transport Cargo Load');
+
+  // await clickAndMeasureDynamic(page, Cargo.CompleteTransportCargoUnloadButton, Cargo.CompleteContainerStuffingButton, 'Complete Transport Cargo Unload');
+
+  // await page.locator(Cargo.YesButton).click();
+  
+  // await clickAndMeasureDynamic(page, '//button[normalize-space()="Complete Container Stuffing"]', '//button[normalize-space()="Yes"]', 'Complete Container Stuffing');
+
+  // await page.locator('//button[normalize-space()="Yes"]').click();
+
+  console.log('Tally completed successfully');
+
+  
+}
 
 export async function SealCuttingSSR(
   page: Page,
@@ -1159,7 +1896,7 @@ export async function extractCargoDetailsNumber(page: Page): Promise<string> {
 // //   // const todayMonth = today.getMonth();
 // //   // const targetMonth = tomorrow.getMonth();
 // //   // If month changes → go to next month
-// //   // if (targetMonth !== todayMonth) {
+// //   // if (targetMonth !== todayMonth) 
 // //   //   await page.locator('.ant-picker-header-next-btn').click();
 // //   // }
  

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { clickAndMeasureDynamic, SwitchModule, login, MOTL, readTestArtifact, routeToMicroservice } from '../../utils/test-helpers';
 import fs from 'fs';
-import { GateImport } from '../../Locators/GateImport';
+import { GateImport } from '../../Locators/All locators/GateImport';
 function generateVehicleNumber(): string {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const randomLetters =

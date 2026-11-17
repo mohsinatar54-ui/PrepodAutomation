@@ -8,7 +8,7 @@ import {
   writeTestArtifact,
   generateVehicleNumber,
   readTestArtifact
-} from "../../utils/test-helpers";
+} from "../../../utils/test-helpers";
 import fs from "fs";
 
 const PrimaryACCountHolder = "ADITYA LOGISTICS(ADI01)";

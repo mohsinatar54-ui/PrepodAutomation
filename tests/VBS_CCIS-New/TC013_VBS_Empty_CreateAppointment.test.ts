@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 // import { clickAndMeasureDynamic, login, getNextDateTimeFormatted,SelectVehicleType,selectEntityAndSite, getRandomNumberString, Createfile, readTestArtifact, setBookingTypeCapacity } from '../../utils/test-helpers_VBS_CCIS';
 import { clickAndMeasureDynamic, login, getNextDateTimeFormatted,selectEntityAndSite, getRandomNumberString, readTestArtifact, writeTestArtifact} from '../../utils/test-helpers';
 import {SelectVehicleType,setBookingTypeCapacity } from '../../utils/test-helpers_VBS_CCIS';
-import { Master,Appointments } from 'Locators/VBSMasters';
+import { Master,Appointments } from 'Locators/All locators/VBSMasters';
 
 const bookingType = 'Empty';
 // const bookingNo = '98960BN20260109001IMP';

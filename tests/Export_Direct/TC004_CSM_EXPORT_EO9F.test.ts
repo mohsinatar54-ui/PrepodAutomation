@@ -45,7 +45,9 @@ const ExportBookingData = {
       Sealtype: 'ESEAL',
       POA: 'BPCL',
       POL: 'VAGE',
+     // JobCategory: 'Container Job',
       JobCategory: 'Container Job',
+    //  JobActivityPoint: 'Container Operation',
       JobActivityPoint: 'Container Operation',
       // JobDescription: "2: 1063", //'Container In By Truck From Factory Stuffing (XITF)';
       JobDescription: "2: 1063", //'CFS Stuffing-Direct stuffing (EO9F)';
@@ -56,13 +58,14 @@ const ExportBookingData = {
       Shipping_Bill_Number: getRandomNumberString(7)
 };
 
-test('TC001_CSM_EXPORT_EO9F', async ({ page }) => {
+test('TC004_CSM_EXPORT_EO9F.test.ts', async ({ page }) => {
   await test.setTimeout(700000); // 2 minutes timeout for this test
-  await login(page);
-  await selectEntityAndSite(page);
-  await ExportBooking_XITF(page, ExportBookingData, 'ExportDirect_Empty_BookingNumber.txt', 'ExportDirect_EO9F_Container.txt');
-  await ExportBooking_XITF_Add_Transport(page,'ExportDirect_EO9F_Vehicle.txt');
-  await ExportBooking_XITF_With_JobPlan_Savesubmit(page);
+//  await login(page);
+  const loginPage = await login(page);
+  await selectEntityAndSite(loginPage);
+  await ExportBooking_XITF(loginPage, ExportBookingData,'ExportDirectBookingNumber.txt','ExportDirectEO9F_Container.txt');
+  await ExportBooking_XITF_Add_Transport(loginPage,'ExportDirect_EO9F_Vehicle.txt');
+  await ExportBooking_XITF_With_JobPlan_Savesubmit(loginPage);
 
 });
   

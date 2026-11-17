@@ -3,7 +3,7 @@ import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumbe
 import fs from 'fs';
 import {selectFutureDay}  from '../../utils/createExcelData';
 import { text } from 'stream/consumers';
-import {CSMImport} from '../../Locators/CSMImportL'
+import {CSMImport} from '../../Locators/All locators/CSMImportL'
 
 const DepotSizeType = '20 STD (20STD)';
 const ISOSizeType = '22G1';

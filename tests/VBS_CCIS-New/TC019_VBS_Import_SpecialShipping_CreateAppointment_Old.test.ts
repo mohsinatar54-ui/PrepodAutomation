@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 // import { clickAndMeasureDynamic, login, getNextDateTimeFormatted,SelectVehicleType,selectEntityAndSite, getRandomNumberString, Createfile, readTestArtifact,writeTestArtifact, setBookingTypeCapacity } from '../../utils/test-helpers_VBS_CCIS';
-import { Master,Appointments} from 'Locators/VBSMasters';
+import { Master,Appointments} from 'Locators/All locators/VBSMasters';
 import { CSMImport } from 'Locators/BookingLocators';
 import { CSM_ImportBooking_MOTL } from '../../Flows/ImportFlow';
 import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumberString, writeTestArtifact, readTestArtifact, selectEntityAndSite } from '../../utils/test-helpers';

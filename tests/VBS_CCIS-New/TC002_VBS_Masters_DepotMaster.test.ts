@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 // import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumberString,selectEntityAndSite, SelectVehicleType } from '../../utils/test-helpers_VBS_CCIS';
 import { getTomorrowDateFormats, SelectVehicleType } from '../../utils/test-helpers_VBS_CCIS';
 import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumberString,selectEntityAndSite } from '../../utils/test-helpers';
-import { Master } from 'Locators/VBSMasters';
+import { Master } from 'Locators/All locators/VBSMasters';
 
 
 test('TC002_VBS_Masters_DepotMaster', async ({ page }) => {

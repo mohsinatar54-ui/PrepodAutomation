@@ -1,26 +1,32 @@
 import { test, expect } from '@playwright/test';
 import { clickAndMeasureDynamic, login, waitForPageLoad } from 'utils/test-helpers';
 
+
 const URL_8030 = 'http://172.16.23.54:8030/Account/Login';
 const USERNAME_8030 = 'appadmin@logstarerp.com';
 const PASSWORD_8030 = 'StarLog@2024';
 
 const OPERATOR_NAME = 'MMJ Logistics';
 const EMPTY_JOB_TYPE = 'Empty Container In from Port (EITP)';
+
 const DEPOT_SIZE_TYPE = '20 STD';
 const ISO_SIZE_TYPE = '22G1';
 const TOTAL_CONTAINERS = '5';
+
 const TRANSPORTER = 'CMA CGM';
 const MAX_WEIGHT = '15000';
+
 const GRADE = 'Grade-A Container';
 const SURVEY_REMARK = 'Condition OK';
 const PORT_NAME = 'CCTL';
+
 const DAMAGE_DETAILS = 'Not Much';
 const EIR = '2486';
+
 const DEPOT_QUALITY_CODE = 'BUBBLE LINER';
 const DEPOT_CONDITION_CODE = 'A-Available';
 const PORT_OUT_DATE = '26 Nov 2025 11:00';
-const OPERATOR_CONDITION_CODE = 'NON-DAMAGE';
+const OPERATOR_CONDITION_CODE = 'NON-DAMAGE'
 
 async function loginToDP8030Application(page: any) {
   await page.goto(URL_8030);

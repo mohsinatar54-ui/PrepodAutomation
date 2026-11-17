@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 // import { clickAndMeasureDynamic, login, getNextDateTimeFormatted,SelectVehicleType,selectEntityAndSite, getRandomNumberString, Createfile, readTestArtifact, setBookingTypeCapacity } from '../../utils/test-helpers_VBS_CCIS';
 import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumberString, writeTestArtifact, readTestArtifact, selectEntityAndSite, selectFutureDay } from '../../utils/test-helpers';
 import { setBookingTypeCapacity, SelectVehicleType} from '../../utils/test-helpers_VBS_CCIS';
-import { Master,Appointments } from 'Locators/VBSMasters';
+import { Master,Appointments } from 'Locators/All locators/VBSMasters';
 import { GateCommon, GateImport } from 'Locators/GateLocators';
 // import { CSM_VBS_ImportBooking_MOTL } from 'Flows/ImportFlow';
 import { CSM_ImportBooking_MOTL } from '../../Flows/ImportFlow';

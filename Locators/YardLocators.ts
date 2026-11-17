@@ -26,5 +26,15 @@ export const YardPlanner = {
     ExecuteMoveButtonByContainer: (containerNo: string) => `//tr[.//a[normalize-space()='${containerNo}']]//button[normalize-space()='Execute']`,
     Shifttostack1:'//label[text()=" Shift to Stack "]/following-sibling::app-custom-dropdown//input',
     Shifttostack:'//label[text()=" Shift to Stack "]//following-sibling::app-custom-dropdown',
-    Crane:'//label[text()="Crane "]/following-sibling::app-custom-dropdown'
+    Crane:'//label[text()="Crane "]/following-sibling::app-custom-dropdown',
+    Searchshift:'//input[@placeholder="Search options..."]',
+    Stuff_destuff:'//div[@class="options-list"]/div[normalize-space()="stuff-destuff"]',
+    Cranedropdown1:'//div[@class="options-list"]/div[normalize-space()="CRANE1"]',
+    Planned_stack:'//label[text()="Planned Stack No"]//following-sibling::app-custom-dropdown',
+    Stacktype:'//label[text()=" Stack Type"]/following-sibling::app-custom-dropdown',
+    Planned_Stack:'//label[text()=" Planned Stack"]/following-sibling::app-custom-dropdown',
+    Unmarked_Stack:'//div[@class="options-list"]/div[normalize-space()="Un-Marked Stack"]',
+    planned_stackdropdown:'//div[@class="options-list"]/div[normalize-space()="stuff-destuff"]',
+    Submitbutton:'//button[text()="Submit"]',
+    Containerlist:'//div[text()="Containers List"]'
 }

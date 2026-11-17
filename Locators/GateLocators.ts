@@ -16,6 +16,7 @@ export const GateImport = {
     VehicleNoInput: '//div[label[contains(., "Vehicle No")]]//input',
     // TransportDropdown: '//app-searchable-dropdown[@ng-reflect-placeholder="Select Transport"]',
     TransportDropdown: '//app-searchable-dropdown[@ng-reflect-field-name="transport"]//div[@class="dropdown-input"]',
+    Transportdropdown1:'//app-searchable-dropdown[@formcontrolname="transporter"]//div[@class="dropdown-input"]',
     TransportDropdownFirst: '//div[@class="dropdown-list"]//div[1]',
     TareWeightInput: "//div[label[contains(., 'Tare Weight')]]//input",
     DamageDetailsInput: "//div[label[contains(., 'Damage Details')]]//input",
@@ -24,6 +25,7 @@ export const GateImport = {
     IGMSealInput: "//div[label[contains(., 'IGM Seal No.')]]//input",
     TruckRFIDInput: "//div[label[contains(., 'Truck RFID No.')]]//input",
     SurveyRemarkDropdown: 'app-searchable-dropdown[ng-reflect-placeholder="Select Survey Remark"]',
+    ServeyRemarkoption1:'//div[@class="dropdown-list"]//div[1]',
     // SurveyRemarkOption: (surveyRemark: string) => `//div[@class="dropdown-list"]//div[normalize-space()="${surveyRemark}"]`,
     SurveyRemarkOption: (surveyRemark: string) => `//div[normalize-space()="${surveyRemark}"]`,
     EIRNoInput: "//div[label[contains(., 'EIR No.')]]//input",
@@ -43,6 +45,17 @@ export const GateImport = {
     CFSGateInDateTimeInput: "//div[label[contains(., 'CFS Gate In Date Time')]]//input[@type='datetime-local']",
     PortTransNoInput: "//div[label[contains(., 'Port Trans No')]]//input",
     IsWeighmentCheckbox: "//div[label[contains(., 'Is Weighment?')]]//input[@type='checkbox']",
+    DepotQualityCODE:'//label[text()=" Depot Quality Code "]/following-sibling::app-searchable-dropdown',
+    DepotQualityCODE1:'//label[text()=" Depot Quality Code"]/following-sibling::app-searchable-dropdown',
+    SearchbybookingNo:'//input[@placeholder="Search by booking no."]',
+    Gate:'//label[text()=" Gate"]/following-sibling::app-searchable-dropdown',
+    EmptyYard:'//app-searchable-dropdown[@formcontrolname="yardStop"]',
+    MFGdate:'//input[@id="manufacturedDate"]',
+    DepotSize:'//app-searchable-dropdown[@formcontrolname="depotSize"]',
+    ISOSize:'//app-searchable-dropdown[@formcontrolname="isoSize"]',
+    Selectholdtype:'//app-searchable-dropdown[@ng-reflect-field-name="holdType"]',
+    HoldComment:'//label[text()=" Hold Comments "]/following-sibling::input'
+    
 }
 
 
@@ -66,7 +79,7 @@ export const GateEmpty = {
     TruckRFIDInput: "//div[label[contains(., 'Truck RFID No.')]]//input",
 
     HoldComments: "//label[contains(normalize-space(),'Hold Comments')]/following::input[1]",
-    SurveyRemarkDropdown: 'app-searchable-dropdown[ng-reflect-placeholder="Select Survey Remark"]',
+    SurveyRemarkDropdown: '//app-searchable-dropdown[@ng-reflect-placeholder="Select Survey Remark"]',
     SurveyRemarkOption: (surveyRemark: string) => `//div[@class="dropdown-list"]//div[normalize-space()="${surveyRemark}"]`,
 
     EIRNoInput: "//div[label[contains(., 'EIR No.')]]//input",
@@ -74,17 +87,38 @@ export const GateEmpty = {
     PortOutDateTimeInput: "//div[label[contains(., 'Port Out Date Time')]]//input[@type='datetime-local']",
     CFSGateInDateTimeInput: "//div[label[contains(., 'CFS Gate In Date Time')]]//input[@type='datetime-local']",
 
-    PortNameDropdown: '//div[text()=" Select Port Name And Threshold Limit "]',
-    PortNameInput: '//app-searchable-dropdown//input[@placeholder="Select Port Name And Threshold Limit"]',
-    PortNameFirstOption: '//div[contains(@class, "dropdown-item")]',
+     PortNameDropdown: '//label[text()=" Port Name And Threshold Limit "]/following-sibling::app-searchable-dropdown',
+     PortNameInput: '//input[@placeholder="Select Port Name And Threshold Limit"]',
+     PortNameFirstOption: '//label[text()=" Port Name And Threshold Limit "]/following-sibling::app-searchable-dropdown//div',
     EmptyYard: '//app-searchable-dropdown[@ng-reflect-field-name="yardStopID"]',
     EmptyYardFirstOption: '//div[@class="dropdown-list"]//div[1]',
     ManufactureDate: "//label[contains(normalize-space(),'Manufacture Date')]/following::input[@type='date'][1]",
     SaveButton: '//button[normalize-space()="Save"]',
     ValidateButton: (Vehicle_No: string) => `//tr[td//a[normalize-space()="${Vehicle_No}"]]//button[normalize-space()="Validate"]`,
     ExecuteButton: (Vehicle_No: string) => `//tr[td//a[normalize-space()="${Vehicle_No}"]]//button[normalize-space()="Execute"]`,
+    Planned_Out_Weighbridge:'//label[text()=" Planned Out Weighbridge "]/following-sibling::app-searchable-dropdown',
+    Planned_out_Weighbridge_input:'//input[@placeholder="Select Planned Out Weighbridge"]',
+    Planned_Out_Weighbridge_option:'//label[text()=" Planned Out Weighbridge "]/following-sibling::app-searchable-dropdown//div[4]',
+    Planned_In_Weighbridge_input:'//input[@placeholder="Select Planned In Weighbridge"]',
+    Planned_in_Weighbridgenew:'//label[text()=" Planned In Weighbridge "]/following-sibling::app-searchable-dropdown', 
+    Planned_in_Weighbridge_option1:'//label[text()=" Planned In Weighbridge "]/following-sibling::app-searchable-dropdown//div[4]'
 
 }
+export const GateExport = {
+  //  GateOperationsLogo: '//img[@alt="Gate Operations Logo"]',
+  //  StandardServicesButton: '//button[normalize-space()="Standard Services"]',
+    CargoButton: '//button[normalize-space()="Cargo"]',
+    ExportCargoLink: '//a[normalize-space()="Export Cargo"]',
+    SearchByBookingInput: '//input[@placeholder="Search by booking no."]',
+    SearchButton: '//button[normalize-space()="Search"]',
+    ValidateButtonE: (Vehicle_No: string) => `//tr[td//a[normalize-space()="${Vehicle_No}"]]//button[normalize-space()="Validate"]`,
+    ExecuteButtonE: (Vehicle_No: string) => `//tr[td//a[normalize-space()="${Vehicle_No}"]]//button[normalize-space()="Execute"]`,
+    ContainerButton: '//button[normalize-space()="Container"]',
+    GateOuttoggle:'//span[normalize-space()="Gate In"]/following-sibling::label',
+    GateExportBNsearch:'//input[@placeholder="Search by booking no."]',
+    Exportcontainerbutton:'//a[text()=" Export Container "]',
+
+};
 
 
 // export const Common = {

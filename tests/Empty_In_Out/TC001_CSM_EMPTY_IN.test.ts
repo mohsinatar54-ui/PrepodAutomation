@@ -5,7 +5,7 @@ import { CSM_Empty_IN_Flow } from '../../Flows/EmptyFlow';
 
 
 const EmptyData = {
-  DepotSizeType: '20 STD',
+  DepotSizeType: '20 DV',
   ISOSizeType: '22G1',
   TotalContainerCount: '5',
   Operator: 'MAERSKLINE',

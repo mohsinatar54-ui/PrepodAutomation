@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 // import { clickAndMeasureDynamic, login, getNextDateTimeFormatted,SelectVehicleType,selectEntityAndSite, getRandomNumberString, Createfile, readTestArtifact,writeTestArtifact, setBookingTypeCapacity } from '../../utils/test-helpers_VBS_CCIS';
 import { clickAndMeasureDynamic, login, getNextDateTimeFormatted, getRandomNumberString, writeTestArtifact, readTestArtifact, selectEntityAndSite, selectFutureDay } from '../../utils/test-helpers';
 import { setBookingTypeCapacity, SelectVehicleType} from '../../utils/test-helpers_VBS_CCIS';
-import { Master,Appointments} from 'Locators/VBSMasters';
+import { Master,Appointments} from 'Locators/All locators/VBSMasters';
 import { Common, CSMExport } from 'Locators/BookingLocators';
 import { ExportBooking_XITF } from 'Flows/ExportFlow';
 // import { Vehicle_No } from './Gate_Operation_Import.test';
